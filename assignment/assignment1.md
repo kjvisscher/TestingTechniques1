@@ -1,14 +1,19 @@
 # Test Preparation
 ## Exercise 1: Description of SUT
 - a) what is your sut;
+     matrix implementation existing of a synapse server and an element client
 - b) what functionality does your sut provide for its users;
+     It allows for chatting to other users in the form of direct messaging, rooms and spaces;
 - c) external perspective: functionality, what the sut shall do, its in-
    terfaces, the inputs it accepts, the outputs that can be observed,
    possible and necessary environments, how to start and stop the sut,
    . . . , including a picture of the external view;
+  
 - d) internal perspective: structure and implementation details as far as they matter for black-box testing, . . . , including a picture of the structural view;
 - e) the software/hardware platform(s) on which it is running, required additional software for running it, version number, configuration, and any other specific information about the sut;
+     an docker container ...
 - f) references to documentation about your sut.
+  https://matrix.org/docs/
 ## Exercise 2: What part of your SUT to test
 - a) which part(s), components, features, functionality, interfaces;
 - b) which requirements/specifications apply to these parts; refer to available documentation, where applicable.
