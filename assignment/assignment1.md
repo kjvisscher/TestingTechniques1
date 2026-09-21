@@ -19,7 +19,9 @@ For black-box testing is the SUT's internal structure mainly the components whic
 ==TODO: add picture of internal view.==
 
 - e) the software/hardware platform(s) on which it is running, required additional software for running it, version number, configuration, and any other specific information about the sut;
-     an docker container ...
+     - a docker container running the [latest image version](https://hub.docker.com/r/matrixdotorg/synapse).
+     - synapse repository also on the latest ([1.161.0](https://github.com/element-hq/synapse/releases/tag/v1.161.0) ) version
+     - The repository and image are both run locally on either linux or windows
 - f) references to documentation about your sut.
   https://matrix.org/docs/
   https://hub.docker.com/r/matrixdotorg/synapse
