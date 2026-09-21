@@ -3,6 +3,8 @@ Our SUT is the [Synapse server](https://github.com/element-hq/synapse), which we
 
 We will run the server using Docker, but the installation will differ slightly between Windows and Linux.
 
+Note that step 1 through 4 differ between Linux and Windows, after that they are the same.
+
 ## Linux
 ### 1) Install + enable docker
 ```sh
@@ -39,6 +41,39 @@ docker run -d \
   matrixdotorg/synapse:latest
 ```
 Go to [localhost:8008](http://localhost:8008/).
+
+## windows 
+
+### 1) Install Docker
+https://www.docker.com/products/docker-desktop/ 
+
+### clone the synapse repositoy
+https://github.com/element-hq/synapse
+
+```sh
+git clone https://github.com/element-hq/synapse
+cd synapse
+```
+
+### 3) Config Synapse
+```sh
+docker run -it --rm `
+  -v "${PWD}/data:/data" `
+  -e SYNAPSE_SERVER_NAME=localhost `
+  -e SYNAPSE_REPORT_STATS=no `
+  synapse-dev generate
+```
+
+### 4) Run Synapse
+```sh
+docker run -d --name synapse `
+  -v "${PWD}/data:/data" `
+  -p 8008:8008 `
+  synapse-dev
+```
+Go to [localhost:8008](http://localhost:8008/).
+
+## Linux & Windows
 
 ### 5) Create admin user
 ```sh
