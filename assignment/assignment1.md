@@ -1,23 +1,23 @@
 # Test Preparation
 ## Exercise 1: Description of SUT
-For our system-under-test we have picked the [Synapse client](https://github.com/element-hq/synapse) by [Element](https://element.io/), an open source instance of [Matrix](https://matrix.org/) written in Python.
-- b) what functionality does your sut provide for its users;
-     With this SUT the user is able to:
-     - Locally run the synapse server.
-     - Create a web-client on app.element.io.
-     These components together enable communication based on chat messages following the matrix communication protocol.
-- c) external perspective: functionality, what the sut shall do, its interfaces, the inputs it accepts, the outputs that can be observed, possible and necessary environments, how to start and stop the sut,. . . , including a picture of the external view;
-     From the outside, the SUT lets a user send and receive chat messages according to the Matrix protocol.
-     - Functionality: user registration and login, creating/joining/leaving rooms, sending and receiving messages, viewing message history.
-     - Interfaces: the Matrix Client-Server HTTP API exposed by Synapse at `/_matrix/client/*` on `localhost:8008`, accessed either through `app.element.io` or directly via HTTP requests (curl).
-     - Inputs: user credentials (registration/login), room actions (create, join, invite), and messages, entered through the `app.element.io` UI or sent as JSON in HTTP requests.
-     - Outputs: rendered rooms and messages in the `app.element.io` UI, or raw JSON responses and HTTP status codes when interacting with the API directly.
-     - Environment: Synapse runs in a Docker container built from source on the tester's machine; Element runs as a web client in a browser, connecting to the local Synapse instance over HTTP.
-     - Start/stop: the server is started with `docker run` (built beforehand with `docker build`) and stopped with `docker stop`/`docker rm`; the client is simply opened/closed in a browser tab, with the homeserver URL pointed at `http://localhost:8008`.
-- d) internal perspective: structure and implementation details as far as they matter for black-box testing, . . . , including a picture of the structural view;
-     For black-box testing is the SUT's internal structure mainly the components which has a observable form of output:
-     - HTTP Listener on port 8008 passing request based on content and path.
-     - Client-server and API handler process requests in accordance with the Matrix communication protocol.
+For our system-under-test we have picked [Synapse](https://github.com/element-hq/synapse) a (home)server developed by [Element](https://element.io/). Synapse is an open source instance of [Matrix](https://matrix.org/) written in Python.
+
+Using Synapse, the user can locally run the a server and connect to it using a web client on [app.element.io](https://app.element.io/). These enable chat-based communication following the Matrix communication protocol.
+
+As a chat server, Synapse allows a user to communicate in accordance with the Matrix protocol. 
+- Functionality includes user registration and login, creating/joining/leaving rooms, sending and receiving messages and viewing message history. 
+- The interface is the Matrix Client-Server HTTP API exposed by Synapse at `/_matrix/client/*` on `localhost:8008`, accessed either through `app.element.io` or directly via HTTP requests.
+- The inputs include user credentials (registration/login), room actions (create, join, invite), and messages, entered through the `app.element.io` GUI or sent as JSON in HTTP requests.
+- The outputs consist of rooms and messages rendered in the `app.element.io` UI, or viewed as raw JSON responses and HTTP status codes when interacting with the API directly.
+- Synapse runs in a Docker container built from source on the tester's machine. Element runs as a web client in a browser, connecting to the local Synapse instance over HTTP.
+- The server is started with `docker run` (built beforehand with `docker build`) and stopped with `docker stop`/`docker rm`; the client is simply opened/closed in a browser tab, with the homeserver URL matching that of port exposed by Docker (see [[TestingTechniques1/README]]).
+==TODO: add picture of external view.==
+
+For black-box testing is the SUT's internal structure mainly the components which has a observable form of output:
+- HTTP Listener on port `8008` passing request based on content and path.
+- Client-server and API handler process requests in accordance with the Matrix communication protocol.
+==TODO: add picture of internal view.==
+
 - e) the software/hardware platform(s) on which it is running, required additional software for running it, version number, configuration, and any other specific information about the sut;
      an docker container ...
 - f) references to documentation about your sut.
