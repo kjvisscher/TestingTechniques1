@@ -1,7 +1,11 @@
 # Test Preparation
 ## Exercise 1: Description of SUT
-- a) what is your sut;
-     matrix implementation existing of a synapse server and an element client
+For our system-under-test we have picked the [Synapse client](https://github.com/element-hq/synapse) by [Element](https://element.io/), an open source instance of [Matrix](https://matrix.org/) written in Python.
+
+Synapse is a
+
+
+
 - b) what functionality does your sut provide for its users;
      It allows for chatting to other users in the form of direct messaging, rooms and spaces;
 - c) external perspective: functionality, what the sut shall do, its in-

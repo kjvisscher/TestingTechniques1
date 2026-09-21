@@ -1,3 +1,66 @@
+# Installing and running
+Our SUT is the [Synapse server](https://github.com/element-hq/synapse), which we will install and configure to run locally. The client can be accessed online via [app.element.io](https://app.element.io/) by entering localhost as the host environment.
+
+We will run the server using Docker, but the installation will differ slightly between Windows and Linux.
+
+## Linux
+### 1) Install + enable docker
+```sh
+sudo apt update
+sudo apt install docker.io docker-compose-v2
+sudo systemctl enable --now docker
+docker --version
+docker compose version
+```
+
+### 2) Data directory
+This is where the data for the server will be stored. Below code uses the home `~` directory, change if you'd rather have it stored somewhere else.
+```sh
+mkdir -p ~/synapse-local
+cd ~/synapse-local
+mkdir data
+```
+
+### 3) Config Synapse
+```sh
+docker run -it --rm \
+  --mount type=bind,src="$PWD/data",dst=/data \
+  -e SYNAPSE_SERVER_NAME=localhost \
+  -e SYNAPSE_REPORT_STATS=no \
+  matrixdotorg/synapse:latest generate
+```
+
+### 4) Run Synapse
+```sh
+docker run -d \
+  --name synapse \
+  --mount type=bind,src="$PWD/data",dst=/data \
+  -p 8008:8008 \
+  matrixdotorg/synapse:latest
+```
+Go to [localhost:8008](http://localhost:8008/).
+
+### 5) Create admin user
+```sh
+docker exec -it synapse register_new_matrix_user \
+  http://localhost:8008 \
+  -c /data/homeserver.yaml
+```
+Enter your personal credentials
+```sh
+New user localpart [root]: dirk
+Password: 
+Confirm password: 
+Make admin [no]: yes
+```
+
+### 6) Log in
+1. Go to [app.element.io](https://app.element.io/)
+2. Sign in
+3. Edit homeserver
+4. Other homeserver, enter `http://localhost:8008`
+5. Log in with username/password
+
 # Simple unit testing example with Check and CMake
 
 This project is a complete C unit test with the Check library, using CMake as
