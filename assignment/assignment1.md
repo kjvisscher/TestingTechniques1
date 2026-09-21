@@ -1,23 +1,29 @@
 # Test Preparation
 ## Exercise 1: Description of SUT
 For our system-under-test we have picked the [Synapse client](https://github.com/element-hq/synapse) by [Element](https://element.io/), an open source instance of [Matrix](https://matrix.org/) written in Python.
-
-Synapse is a
-
-
-
 - b) what functionality does your sut provide for its users;
-     It allows for chatting to other users in the form of direct messaging, rooms and spaces;
-- c) external perspective: functionality, what the sut shall do, its in-
-   terfaces, the inputs it accepts, the outputs that can be observed,
-   possible and necessary environments, how to start and stop the sut,
-   . . . , including a picture of the external view;
-  
+     With this SUT the user is able to:
+     - Locally run the synapse server.
+     - Create a web-client on app.element.io.
+     These components together enable communication based on chat messages following the matrix communication protocol.
+- c) external perspective: functionality, what the sut shall do, its interfaces, the inputs it accepts, the outputs that can be observed, possible and necessary environments, how to start and stop the sut,. . . , including a picture of the external view;
+     From the outside, the SUT lets a user send and receive chat messages according to the Matrix protocol.
+     - Functionality: user registration and login, creating/joining/leaving rooms, sending and receiving messages, viewing message history.
+     - Interfaces: the Matrix Client-Server HTTP API exposed by Synapse at `/_matrix/client/*` on `localhost:8008`, accessed either through `app.element.io` or directly via HTTP requests (curl).
+     - Inputs: user credentials (registration/login), room actions (create, join, invite), and messages, entered through the `app.element.io` UI or sent as JSON in HTTP requests.
+     - Outputs: rendered rooms and messages in the `app.element.io` UI, or raw JSON responses and HTTP status codes when interacting with the API directly.
+     - Environment: Synapse runs in a Docker container built from source on the tester's machine; Element runs as a web client in a browser, connecting to the local Synapse instance over HTTP.
+     - Start/stop: the server is started with `docker run` (built beforehand with `docker build`) and stopped with `docker stop`/`docker rm`; the client is simply opened/closed in a browser tab, with the homeserver URL pointed at `http://localhost:8008`.
 - d) internal perspective: structure and implementation details as far as they matter for black-box testing, . . . , including a picture of the structural view;
+     For black-box testing is the SUT's internal structure mainly the components which has a observable form of output:
+     - HTTP Listener on port 8008 passing request based on content and path.
+     - Client-server and API handler process requests in accordance with the Matrix communication protocol.
 - e) the software/hardware platform(s) on which it is running, required additional software for running it, version number, configuration, and any other specific information about the sut;
      an docker container ...
 - f) references to documentation about your sut.
   https://matrix.org/docs/
+  https://hub.docker.com/r/matrixdotorg/synapse
+  https://github.com/element-hq/synapse
 ## Exercise 2: What part of your SUT to test
 - a) which part(s), components, features, functionality, interfaces;
 - b) which requirements/specifications apply to these parts; refer to available documentation, where applicable.
