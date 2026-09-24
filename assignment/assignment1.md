@@ -27,6 +27,15 @@ For black-box testing is the SUT's internal structure mainly the components whic
   https://hub.docker.com/r/matrixdotorg/synapse
   https://github.com/element-hq/synapse
 ## Exercise 2: What part of your SUT to test
+We're going to test chatting between two users in chatrooms. This way, we won't need to reset the container between runs. Some basic test cases we thought of are:
+- Sending a message
+- Deleting a message
+- Adding a reaction to a message
+- Removing a reaction
+- Replying to a message
+- Pinning a message
+
+
 - a) which part(s), components, features, functionality, interfaces;
 - b) which requirements/specifications apply to these parts; refer to available documentation, where applicable.
 ## Exercise 3: Test architecture for the testing

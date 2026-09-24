@@ -1,3 +1,18 @@
+# Running
+If you've installed and configured your container already, you can simply start it after stopping it. First, get all containers (running and stopped):
+```bash
+docker ps -a
+```
+You should get something like this:
+```bash
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+1fa59f56d69d ...
+```
+Copy the container id (`1fa59f56d69d`) and run:
+```
+docker start 1fa59f56d69d
+```
+
 # Installing and running
 Our SUT is the [Synapse server](https://github.com/element-hq/synapse), which we will install and configure to run locally. The client can be accessed online via [app.element.io](https://app.element.io/) by entering localhost as the host environment.
 
@@ -40,14 +55,14 @@ docker run -d \
   -p 8008:8008 \
   matrixdotorg/synapse:latest
 ```
-Go to [localhost:8008](http://localhost:8008/).
+Go to [localhost:8008](http://localhost:8008/). 
 
-## windows 
+## Windows 
 
 ### 1) Install Docker
 https://www.docker.com/products/docker-desktop/ 
 
-### clone the synapse repositoy
+### 2) Clone the synapse repositoy
 https://github.com/element-hq/synapse
 
 ```sh
