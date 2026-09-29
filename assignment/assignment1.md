@@ -26,6 +26,7 @@ For black-box testing is the SUT's internal structure mainly the components whic
   https://matrix.org/docs/
   https://hub.docker.com/r/matrixdotorg/synapse
   https://github.com/element-hq/synapse
+  https://spec.matrix.org/latest/
 ## Exercise 2: What part of your SUT to test
 We're going to test chatting between two users in chatrooms. This way, we won't need to reset the container between runs. Some basic test cases we thought of are:
 - Sending a message
@@ -37,7 +38,23 @@ We're going to test chatting between two users in chatrooms. This way, we won't 
 
 
 - a) which part(s), components, features, functionality, interfaces;
+   We intend to test the part dealing with chatting in a room primairly from the perspective of the user interaction that happens on the server.
+   This means we need to test the components dealing with client-server api and room events partially.
+   We intend to test the following features/functionality: sending a message, deleting a message, replying to a message, removing a reply. 
+   This testing will be done trough the client-server api as interface.
+  
 - b) which requirements/specifications apply to these parts; refer to available documentation, where applicable.
+   This is all found in the matrix specification: https://spec.matrix.org/v1.19/client-server-api/
+   To be precise see the following table
+   |feature/part| chapters|
+   |------------| --------|
+   | room events| 7       |
+   | sending a message | 10.2|
+   | deleting a message | 7.9|
+   | replying to a message | 10.3|
+   | removing a reply| 7.9 |
+
+   note that sending a message and replying to it are both events and thus both are redacted the same way.
 ## Exercise 3: Test architecture for the testing
 Provide a test architecture for the testing you are going to perform:
 You can choose whether you do manual testing, i.e., a human gives inputs
