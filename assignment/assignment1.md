@@ -94,6 +94,21 @@ The primary tool is check: a unit test framework for C made by Arien Malec ([lin
 ## Exercise 6: Domains, inputs and interfaces
 What are the domains of test inputs and outputs, what are valid and invalid inputs, and over which interfaces are they communicated?
 
+The interface is in all cases the client server api trough http and our formatting functions.
+constanst and unrelated variables are mosly omitted, these typicaly apply to all room events which fall outside the scope of our testing. Optional was used to give an optional argument.
+
+|datatype|details|
+|---|---|
+|String| sequence of unicode characters|
+|(200:succeeded)| contains event id|
+|(400:formatting errors)|error code and an error message|
+|(403:no permission)|error code and an error message |
+
+|test|input|output|other|
+|---|---|---|---|
+| send message | body(String)| (200:succeeded) Xor (400:failed) Xor (403:no permission)| msgtype is set to m.txt |
+| reply  | body(String) and event_id(integer)| (200:succeeded) Xor (400:failed) Xor (403:no permission)| msgtype is set to m.txt |
+| delete message| event_id(integer) and optional( reason(String)) |(200:succeeded) Xor (400:failed) Xor (403:no permission)| is used for deleting all kinds of events
 
 ## Exercise 7: Black-box functionality test cases
 Develop (at least) 12 black-box functionality test cases to test your sut and write them in your test notation. Motivate your choice for these test cases, and make clear which test generation technique you used for each test (EP, BVA, state-based, use-case, . . . ).
