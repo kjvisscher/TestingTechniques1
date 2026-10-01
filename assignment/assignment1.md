@@ -69,6 +69,10 @@ outputs.
 - e) describe which tools you will use for testing, consistent with the diagram that you made above. Tools can be stubs, drivers, mocks, open-source test tools (search the internet), self-developed test tools, shell scripts, interface tools, protocol sniffers, . . ..
 ## Exercise 4: What typical test cases look like
 - a) what is a typical structure of your tests: initial state, test inputs, test outputs, observations, conditions, . . . .
+
+The initial state for our tests will be a chat room with (at least) 2 users, with possibly extra requirements depending on the test. Test input and output are JSON objects transmitted over HTTP. Test input will require some sort of event (such as sending a message, replying to a message, etc.) as input alongside additional required parameters as specified by the Matrix API. Test output will include a code depending on whether the request succeeded or not, alongside a body which will include information possible errors. We can observe whether the test failed or not by comparing the received response to the expected HTTP code and JSON object.
+
+
 - b) how will you specify your test cases, i.e., the test notation or language to document your test cases; give a template for a test case.
 ## Exercise 5: Discription implemented test architecture
 - a) concrete implementation of input and output interfaces; 
