@@ -53,6 +53,7 @@ We're going to test chatting between two users in chatrooms. This way, we won't 
    | deleting a message | 7.9|
    | replying to a message | 10.3|
    | removing a reply| 7.9 |
+   | errors | 1.1|
 
    note that sending a message and replying to it are both events and thus both are redacted the same way.
 ## Exercise 3: Test architecture for the testing
@@ -77,6 +78,8 @@ outputs.
 # Test Development
 ## Exercise 6: Domains, inputs and interfaces
 What are the domains of test inputs and outputs, what are valid and invalid inputs, and over which interfaces are they communicated?
+
+
 ## Exercise 7: Black-box functionality test cases
 Develop (at least) 12 black-box functionality test cases to test your sut and write them in your test notation. Motivate your choice for these test cases, and make clear which test generation technique you used for each test (EP, BVA, state-based, use-case, . . . ).
 # Test Execution
