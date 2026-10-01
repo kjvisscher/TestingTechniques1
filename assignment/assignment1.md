@@ -63,10 +63,25 @@ to and observes outputs from the sut, or automated testing, i.e., some
 program, test tool, or test script gives inputs to the sut and observes its
 outputs.
 - a) give a diagram in which you position the sut, its (distributed) structure, interfaces, environment, stubs, drivers, necessary test tools, . . . ;
+
+![Diagram](component_diagram.drawio.png)
+
 - b) describe the sut input interfaces that you will use, i.e., where and how will your tests will trigger the sut;
+
+The test will be run by an automatic testing application, this application will have multiple test suits which will all test a specific subject. Each subject will be tested by multiple test cases. Each test case will consist of a unit test based comparison. Each test case will consist of a HTTP-request which will be sent to the SUT, after that the response will be compared to the expected "good behaviour" response and based on that comparison the test passes or fails.
+
 - c) describe the sut output interfaces, i.e., where and what you will observe during testing;
+
+The output of the SUT will be in compliance with the matrix communication protocol over HTTP-requests. The output will consist of text-based messagers or files. The primary focus of the tests will be text-based messagers because the comparison is simpler to assert. These responses are analyzed by the testing application.
+
 - d) describe assumptions on the environment of the sut;
+
+The assumption is that by recreating rooms for each test, the behaviour of messages is consistent throughout different rooms. 
+By running the app locally on a specific machine will not make a difference in the behaviour in comparison to running the application globally throughout multiple devices.
+
 - e) describe which tools you will use for testing, consistent with the diagram that you made above. Tools can be stubs, drivers, mocks, open-source test tools (search the internet), self-developed test tools, shell scripts, interface tools, protocol sniffers, . . ..
+
+The primary tool is check: a unit test framework for C made by Arien Malec ([link](https://github.com/libcheck/check)). 
 ## Exercise 4: What typical test cases look like
 - a) what is a typical structure of your tests: initial state, test inputs, test outputs, observations, conditions, . . . .
 
