@@ -19,9 +19,15 @@ include(CheckTypeSize)
 add_executable(test_sample test_sample.c)
 target_link_libraries(test_sample sample ${CHECK_LIBRARIES} pthread)
 
+add_executable(test_http_health test_http_health.c)
+target_link_libraries(test_http_health ${CHECK_LIBRARIES} pthread)
+
 # Create testing target and redirect its output to `Testing` folder
 add_test(NAME test_sample COMMAND test_sample WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Testing)
 set_tests_properties(test_sample PROPERTIES TIMEOUT 30) 
+
+add_test(NAME test_http_health COMMAND test_http_health WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Testing)
+set_tests_properties(test_http_health PROPERTIES TIMEOUT 30)
 
 # Aditional Valgrind test to check memory leaks in code
 include(FindValgrind)

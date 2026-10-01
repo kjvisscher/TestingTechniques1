@@ -126,14 +126,15 @@ a build tool.
 
 To run this project the following programs need to be installed on your system:
 - Cmake
-- Check
+- Check (`libcheck-dev` on Debian/Ubuntu)
 - Valgrind
 
 run:
 ```
 $ sudo apt update
-$ sudo apt upgrade
+$ sudo apt install build-essential cmake libcheck-dev valgrind lcov
 ```
+> If you have trouble installing `libcheck-dev`, use `sudo apt install check` instead
 
 Then, do as follows:
 
