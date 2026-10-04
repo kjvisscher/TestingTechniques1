@@ -65,7 +65,20 @@ The initial state for our tests will be a chat room with (at least) 2 users, wit
 
 
 - b) how will you specify your test cases, i.e., the test notation or language to document your test cases; give a template for a test case.
-==TODO Exercise 4b==
+
+For test cases we will use so called room events. A room event consists out of either a GET request which requests some piece of information from the server, or a PUT request which sends an event to the room. Since each room event requires the roomID of the current room and this is not necessarily something we want to test on, the test cases will not explicitly mention this value. However remember this will always be an implicit parameter in the HTTP request. The test cases will be notated in the following of 2 ways:
+
+| GET | Requested Information | Path Parameters | JSON Parameters | Expected Status Code | Expected Body      |
+|-----|-----------------------|-----------------|-----------------|----------------------|--------------------|
+| GET | joined_members        |                 |                 | 200                  | Map to RoomMembers |
+
+| PUT 	| EventType      	| JSON Parameters                	    | Expected Status Code 	| Expected Body 	|
+|-----	|----------------	|--------------------------------	    |----------------------	|---------------	|
+| PUT 	| m.room.message 	| body : "Hi" <br> msgtype : "m.text" 	| 200                  	| EventID       	|
+
+
+
+
 ## Exercise 5: Discription implemented test architecture
 - a) concrete implementation of input and output interfaces; 
 - b) implementation of stubs, drivers, used test tools; 
