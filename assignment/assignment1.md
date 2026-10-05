@@ -80,10 +80,37 @@ For test cases we will use so called room events. A room event consists out of e
 
 
 ## Exercise 5: Discription implemented test architecture
-- a) concrete implementation of input and output interfaces; 
-- b) implementation of stubs, drivers, used test tools; 
-- c) any additional tools or implementation details that are necessary; 
+- a) concrete implementation of input and output interfaces;
+
+The tests trigger the SUT through the Matrix Client-Server HTTP API at `http://localhost:8008/_matrix/client/v3/...`. Each test case builds an HTTP request (method, path, headers, JSON body) and sends it. Requests that need authentication carry an `Authorization: Bearer <access_token>` header. Examples of the endpoints used:
+- `POST /_matrix/client/v3/createRoom`
+  - (create a fresh room per test)
+- `POST /_matrix/client/v3/rooms/{roomId}`
+  - (add the second user)
+- `PUT /_matrix/client/v3/rooms/{roomId}/send/...`
+  - (send a message or reply)
+- `PUT /_matrix/client/v3/rooms/{roomId}/redact/...`
+  - (delete a message)
+- `GET /_matrix/client/v3/rooms/{roomId}/messages/...`
+  - (read message history)
+
+Output interface: The test code reads two things from every response: the HTTP status code and the JSON body. Assertions are made on fields such as `event_id`, `errcode`, `error`, and the `content.body` and `m.relates_to` of events returned by `/messages`.
+
+- b) implementation of stubs, drivers, used test tools;
+
+The test driver is a C program using the Check library. Tests are grouped in suites (based on functionalities like sending, deleting, replying). A small helper library wraps libcurl for sending the HTTP requests and cJSON for building and parsing the JSON bodies. The helpers hide details such as headers, authentication and transaction IDs, so the test cases themselves stay short.
+
+No stubs or mocks are used, as the tests run against the real Synapse server in Docker. The second user in a room is simulated by the driver with a second access token, so no real client is needed. The Element web client is not part of the automated tests.
+
+- c) any additional tools or implementation details that are necessary;
+  - Two test users are registered once before the tests with `register_new_matrix_user` inside the container. Their access tokens are retrieved through `POST /_matrix/client/v3/login`.
+  - A Check fixture (`setup`) creates a fresh room before each test and invites and joins the second user. This gives every test the same initial state without resetting the container.
+  - Matrix requires a unique transaction ID (`txnId`) for each `PUT` request, so the helpers generate a new counter-based ID per request.
+
 - d) are all test interfaces in the architecture accessible?
+
+Yes. Docker publishes port `8008` to the host, so the Client-Server API is reachable by the test application. This is the only interface the tests use. The internal components of Synapse (HTTP listener, API handlers, database) are not accessed directly (in line with black-box testing) their behaviour is observed only through the API responses.
+
 # Test Development
 ## Exercise 6: Domains, inputs and interfaces
 What are the domains of test inputs and outputs, what are valid and invalid inputs, and over which interfaces are they communicated?
