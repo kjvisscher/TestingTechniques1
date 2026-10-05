@@ -147,6 +147,13 @@ $ make test
 
 Don't do `make install` unless you want to install the `sample` library.
 
+To compile the Synapse room integration test directly, link it with Check and
+its dependencies:
+
+```sh
+$ cc tests/test_room.c -o test_room $(pkg-config --cflags --libs check)
+```
+
 `sample.c` and `sample.h` are built as a library. `src/main.c:main()` is a
 client of `libsample.a`, just as `tests/test_sample.c:main()`.
 
