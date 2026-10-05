@@ -80,8 +80,6 @@ Our test cases are based on so called *room events*. A room event consists out o
 
 
 ## Exercise 5: Description implemented test architecture
-- a) concrete implementation of input and output interfaces;
-
 The tests trigger the SUT through the Matrix Client-Server HTTP API at `http://localhost:8008/_matrix/client/v3/...`. Each test case builds an HTTP request (method, path, headers, JSON body) and sends it. Requests that need authentication carry an `Authorization: Bearer <access_token>` header. Examples of the endpoints used:
 - `POST /_matrix/client/v3/createRoom`
   - (create a fresh room per test)
@@ -133,6 +131,21 @@ constanst and unrelated variables are mosly omitted, these typicaly apply to all
 
 ## Exercise 7: Black-box functionality test cases
 Develop (at least) 12 black-box functionality test cases to test your sut and write them in your test notation. Motivate your choice for these test cases, and make clear which test generation technique you used for each test (EP, BVA, state-based, use-case, . . . ).
+
+1. Create room (without alias)
+2. Sending a message
+3. Sending a message (with attachment)
+4. Sending a message (wrong message type)
+5. Sending a message (invalid username)
+6. Sending a message (empty message)
+7. Sending a message (invalid JSON)
+8. Sending a message (strange msgtype)
+9. Sending a message (wrong endpoint)
+10. Sending a message (non-existent room/not in room)
+11. Deleting a message
+12. Deleting a message (does not exist)
+
+
 # Test Execution
 ## Exercise 8: Testing the SUT
 Test your sut with the developed test cases, either manually, or using some existing or self-developed test execution tool. Describe for each test case the outcome of test execution.
