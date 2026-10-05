@@ -27,14 +27,13 @@ target_link_libraries(test_room ${CHECK_LIBRARIES} pthread)
 target_compile_options(test_room PRIVATE -fno-profile-arcs -fno-test-coverage)
 target_link_options(test_room PRIVATE -fno-profile-arcs -fno-test-coverage)
 
-add_executable(message_test message_test.c
-        message_test.c)
-target_link_libraries(message_test ${CHECK_LIBRARIES} pthread)
-target_compile_options(message_test PRIVATE -fno-profile-arcs -fno-test-coverage)
-target_link_options(message_test PRIVATE -fno-profile-arcs -fno-test-coverage)
+add_executable(test_message test_message.c test_message.c)
+target_link_libraries(test_message ${CHECK_LIBRARIES} pthread)
+target_compile_options(test_message PRIVATE -fno-profile-arcs -fno-test-coverage)
+target_link_options(test_message PRIVATE -fno-profile-arcs -fno-test-coverage)
 
-add_test(NAME message_test COMMAND message_test WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Testing)
-set_tests_properties(message_test PROPERTIES TIMEOUT 30)
+add_test(NAME test_message COMMAND test_message WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Testing)
+set_tests_properties(test_message PROPERTIES TIMEOUT 30)
 
 # Create testing target and redirect its output to `Testing` folder
 add_test(NAME test_sample COMMAND test_sample WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Testing)
