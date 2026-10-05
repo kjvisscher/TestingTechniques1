@@ -136,18 +136,17 @@ Develop (at least) 12 black-box functionality test cases to test your sut and wr
 1. Create room (without alias)
 2. Sending a message
 3. Sending a message (bad authentication token)
-4. Sending a message (bad endpoint)
-5. Sending a message (wrong HTTP method)
-6. Sending a message (empty message)
-7. Sending a message (wrong message type)
-8. Sending a message (invalid sender username)
-9. Sending a message (invalid JSON)
-10. Sending a message (non-existent msgtype)
-11. Sending a message (non-existent room/not in room)
-12. Deleting a message
-13. Deleting a message (does not exist)
+4. Sending a message (missing authentication header)
+5. Sending a message (bad endpoint)
+6. Sending a message (wrong HTTP method)
+7. Sending a message (empty message)
+8. Sending a message (wrong message type)
+9. Sending a message (invalid sender username)
+10. Sending a message (invalid JSON)
+11. Sending a message (non-existent msgtype)
+12. Sending a message (non-existent room/not in room)
 
-
+	
 # Test Execution
 ## Exercise 8: Testing the SUT
 Test your sut with the developed test cases, either manually, or using some existing or self-developed test execution tool. Describe for each test case the outcome of test execution.

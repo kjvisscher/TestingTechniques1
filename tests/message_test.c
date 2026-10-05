@@ -283,7 +283,6 @@ START_TEST(test_message_send) {
 
     assert_event_sent(response);
 }
-
 END_TEST
 
 // Bad access token
@@ -294,7 +293,16 @@ START_TEST(test_message_send_bad_token) {
 
     assert_error(response, 401, "M_UNKNOWN_TOKEN");
 }
+END_TEST
 
+// No access token
+START_TEST(test_message_send_no_token) {
+    char response[RESPONSE_BUFFER_SIZE];
+
+    send_message(test_room_id, "", VALID_MESSAGE, response, sizeof(response));
+
+    assert_error(response, 401, "M_MISSING_TOKEN");
+}
 END_TEST
 
 // Endpoint does not exist
@@ -307,7 +315,6 @@ START_TEST(test_message_send_bad_endpoint) {
 
     assert_error(response, 404, "M_UNRECOGNIZED");
 }
-
 END_TEST
 
 // Endpoint with wrong HTTP method
@@ -322,7 +329,6 @@ START_TEST(test_message_send_wrong_method) {
     ck_assert_msg(status == 405, "Expected HTTP status 404 or 405 but got %d", status);
     assert_error(response, status, "M_UNRECOGNIZED");
 }
-
 END_TEST
 
 // Valid message with empty body
@@ -333,7 +339,6 @@ START_TEST(test_message_send_empty_message) {
 
     assert_event_sent(response);
 }
-
 END_TEST
 
 // Message body has wrong JSON type, rejected because 'body' not a string type
@@ -344,7 +349,6 @@ START_TEST(test_message_send_wrong_type) {
 
     assert_error(response, 400, "M_UNKNOWN");
 }
-
 END_TEST
 
 // Sender in content doesn't match token, accepted as sender field is ignored
@@ -357,7 +361,6 @@ START_TEST(test_message_send_invalid_sender) {
 
     assert_event_sent(response);
 }
-
 END_TEST
 
 // Malformed JSON is rejected
@@ -368,7 +371,6 @@ START_TEST(test_message_send_invalid_json) {
 
     assert_error(response, 400, "M_NOT_JSON");
 }
-
 END_TEST
 
 // Unknown field msgtype, accepted because Matrix allows custom message types
@@ -380,7 +382,6 @@ START_TEST(test_message_send_unknown_msgtype) {
 
     assert_event_sent(response);
 }
-
 END_TEST
 
 // Room does not exist
@@ -391,7 +392,6 @@ START_TEST(test_message_send_unknown_room) {
 
     assert_error(response, 403, "M_FORBIDDEN");
 }
-
 END_TEST
 #pragma endregion
 
@@ -405,6 +405,7 @@ int main(void) {
     tcase_add_checked_fixture(test_cases, setup, NULL);
     tcase_add_test(test_cases, test_message_send);
     tcase_add_test(test_cases, test_message_send_bad_token);
+    tcase_add_test(test_cases, test_message_send_no_token);
     tcase_add_test(test_cases, test_message_send_bad_endpoint);
     tcase_add_test(test_cases, test_message_send_wrong_method);
     tcase_add_test(test_cases, test_message_send_empty_message);
