@@ -11,12 +11,12 @@ As a chat server, Synapse allows a user to communicate following the Matrix prot
 - The outputs consist of rooms and messages rendered in the `app.element.io` UI, or viewed as raw JSON responses and HTTP status codes when interacting with the API directly.
 - Synapse runs in a Docker container built from source on the tester's machine. Element runs as a web client in a browser, connecting to the local Synapse instance over HTTP.
 - The server is started with `docker run` (built beforehand with `docker build`) and stopped with `docker stop`/`docker rm`; the client is simply opened/closed in a browser tab, with the homeserver URL matching that of port exposed by Docker (see [[TestingTechniques1/README]]).
-==TODO: add picture of external view.==
+![Diagram](external.drawio.png)
 
 For black-box testing the SUT's internal structure, we mainly focus on the components which have an observable form of output:
 - HTTP Listener on port `8008` passing request based on content and path.
 - Client-server and API handler process requests in accordance with the Matrix communication protocol.
-==TODO: add picture of internal view.==
+![Diagram](internal.drawio.png)
 
 The latest version of the Synapse repository ([1.161.0](https://github.com/element-hq/synapse/releases/tag/v1.161.0)) is running as a docker container on the [latest image version](https://hub.docker.com/r/matrixdotorg/synapse). The repository and image are both run locally on either Linux or Windows operating systems. A basic setup procedure is required before running Synapse for the first time, as detailed in [[TestingTechniques1/README]].
 
