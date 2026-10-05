@@ -32,9 +32,9 @@ static int connect_to_synapse(void) {
 
     for (const struct addrinfo *address = addresses; address != NULL; address = address->ai_next) {
         socket_fd = socket(address->ai_family, address->ai_socktype, address->ai_protocol);
-        // If socket creation fails, continue to the next address
+        // If socket creation fails, continue to next address
         if (socket_fd == -1) continue;
-        // If connection fails, close the socket and continue to the next address
+        // If connection fails, close socket and continue to next address
         if (connect(socket_fd, address->ai_addr, address->ai_addrlen) == 0) break;
 
         close(socket_fd);
@@ -43,11 +43,10 @@ static int connect_to_synapse(void) {
 
     freeaddrinfo(addresses);
     ck_assert_msg(socket_fd != -1, "Could not connect to %s:%s", SYNAPSE_HOST, SYNAPSE_PORT);
-
     return socket_fd;
 }
 
-// Send the JSON POST request and store the HTTP response in `response`
+// Send the JSON POST request and store the HTTP response
 static void post_json(const char *path, const char *token, const char *json_body, char *response,
                       const size_t response_size) {
     char request[REQUEST_BUFFER_SIZE];
@@ -79,7 +78,6 @@ static void post_json(const char *path, const char *token, const char *json_body
         ck_assert_msg(sent > 0, "Could not send request to %s", path);
         total_sent += (size_t) sent;
     }
-
     while (response_length < response_size - 1) {
         const ssize_t received = recv(socket_fd, response + response_length, response_size - response_length - 1, 0);
         if (received <= 0) break;
@@ -89,21 +87,20 @@ static void post_json(const char *path, const char *token, const char *json_body
     response[response_length] = '\0';
 }
 
-// Parse the HTTP status code, return -1 if malformed
+// Parse the HTTP status code
 static int http_status_code(const char *response) {
     int status = -1;
     if (sscanf(response, "HTTP/%*d.%*d %d", &status) != 1) return -1;
     return status;
 }
 
-// Return pointer to the start of the HTTP body, or NULL if there is none
+// Get pointer to the start of the HTTP body
 static const char *http_body(const char *response) {
     const char *body = strstr(response, "\r\n\r\n");
     return body == NULL ? NULL : body + 4;
 }
 
-// Parse the JSON and take the value of the first string: "access_token":"abc".
-// Return 1 on success and 0 if the key is missing or not a string.
+// Parse the JSON and take the value of the first string: "access_token":"abc"
 static int json_get_string(const char *json, const char *key, char *out, const size_t out_size) {
     char pattern[64];
     snprintf(pattern, sizeof(pattern), "\"%s\"", key);
@@ -115,6 +112,7 @@ static int json_get_string(const char *json, const char *key, char *out, const s
     while (isspace((unsigned char) *cursor)) cursor++;
     if (*cursor != ':') return 0;
     cursor++;
+
     while (isspace((unsigned char) *cursor)) cursor++;
     if (*cursor != '"') return 0;
     cursor++;
@@ -143,7 +141,9 @@ static void login(char *token, const size_t token_size) {
 
     post_json("/_matrix/client/v3/login", NULL, login_body, response, sizeof(response));
 
-    ck_assert_msg(http_status_code(response) == 200, "Login did not return 200 OK. Response:\n%s", response);
+    const int status = http_status_code(response);
+    // If status code is 429, wait for a bit before retrying
+    ck_assert_msg(status == 200, "Login returned HTTP status %d", status);
 
     const char *body = http_body(response);
     ck_assert_msg(body != NULL, "Login response did not contain a body");
@@ -163,7 +163,7 @@ START_TEST(test_room_create) {
 
     // Assert 200 OK is returned
     const int status = http_status_code(response);
-    ck_assert_msg(status == 200, "Room creation returned status %d instead of 200. Response:\n%s", status, response);
+    ck_assert_msg(status == 200, "Room creation returned status %d instead of 200", status);
 
     // Assert a non-empty room_id is given
     const char *body = http_body(response);
