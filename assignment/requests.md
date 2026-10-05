@@ -1,4 +1,5 @@
 # Health
+Purpose: Confirm that Synapse is running correctly.
 Type: `GET`
 Url: `http://localhost:8008/health`
 Expected result: `200 OK`
@@ -7,6 +8,7 @@ Expected response body:
 OK
 ```
 # Login
+Purpose: Obtain an access token required for authenticating user actions. 
 Type: `POST`
 Url: `http://localhost:8008/_matrix/client/v3/login`
 Body:
@@ -25,16 +27,17 @@ Expected result: `200 OK`
 Expected response body:
 ```json
 {
-  "user_id": "@dirk:localhost",
+  "user_id": "@<username>:localhost",
   "access_token": "syt_ZGlyaw_bnLxjdEhstImHfQCYdUv_0WZnUK",
   "home_server": "localhost",
   "device_id": "FXZQEBBFMQ"
 }
 ```
 
-> Save `user_id` and `access_token` for later
+> Save `access_token` for later
 
 # Create room
+Purpose: Make a new chatroom to create a clean environment in which to test message sending.
 Type: `POST`
 Url: `http://localhost:8008/_matrix/client/v3/createRoom`
 Body:
@@ -60,6 +63,7 @@ Expected response body:
 > Save `room_id` for later
 
 # Send message
+Purpose: This is the primary action we want to test.
 Type: `PUT`
 Url: `http://localhost:8008/_matrix/client/v3/rooms/<room_id>/state/m.room.message/`
 Body:
@@ -67,7 +71,7 @@ Body:
 {
   "body": "Test message",
   "msgtype": "m.text",
-  "sender": "@dirk:localhost"
+  "sender": "@<username>:localhost"
 }
 ```
 
@@ -85,6 +89,7 @@ Expected response body:
 ```
 
 # Get messages
+Purpose: Confirm that sent messages are processed and saved correctly, as  
 Type: `GET`
 Url: `http://localhost:8008/_matrix/client/v3/rooms/<room_id>/messages`
 Body:
@@ -104,17 +109,18 @@ Expected response body:
 ```json
 {
   "chunk": [
+    {
       "content": {
         "body": "Yay",
         "msgtype": "m.text",
-        "sender": "@dirk:localhost"
+        "sender": "@<username>:localhost"
       },
       "event_id": "$siu7s6JPlMz2wwPlaHzM8FkLC4lOe1rDmam5j_5APCA",
       "origin_server_ts": 1791204804568,
-      "room_id": "!PoYnNmDJIwlTTgTueC:localhost",
-      "sender": "@dirk:localhost",
+      "room_id": "!WkeejZBBZhtBrNiwsj:localhost",
+      "sender": "@<username>:localhost",
       ...
-    } ...
+    }, ...
   ]
 } 
 ```

@@ -71,9 +71,9 @@ Our test cases are based on so called *room events*. A room event consists out o
 |-----|-----------------------|-----------------|-----------------|----------------------|--------------------|
 | GET | joined_members        |                 |                 | 200                  | Map to RoomMembers |
 
-| PUT 	| EventType      	| JSON Parameters                	    | Expected Status Code 	| Expected Body 	|
-|-----	|----------------	|--------------------------------	    |----------------------	|---------------	|
-| PUT 	| m.room.message 	| body : "Hi" <br> msgtype : "m.text" 	| 200                  	| EventID       	|
+| PUT | EventType      | JSON Parameters                     | Expected Status Code | Expected Body |
+|-----|----------------|-------------------------------------|----------------------|---------------|
+| PUT | m.room.message | body : "Hi" <br> msgtype : "m.text" | 200                  | EventID       |
 
 
 
@@ -116,18 +116,19 @@ What are the domains of test inputs and outputs, what are valid and invalid inpu
 The interface is in all cases the client server api trough http and our formatting functions.
 constanst and unrelated variables are mosly omitted, these typicaly apply to all room events which fall outside the scope of our testing. Optional was used to give an optional argument.
 
-|datatype|details|
-|---|---|
-|String| sequence of unicode characters|
-|(200:succeeded)| contains event id|
-|(400:formatting errors)|error code and an error message|
-|(403:no permission)|error code and an error message |
+| datatype                | details                         |
+|-------------------------|---------------------------------|
+| String                  | sequence of unicode characters  |
+| (200:succeeded)         | contains event id               |
+| (400:formatting errors) | error code and an error message |
+| (403:no permission)     | error code and an error message |
+| (404:not found)         | error code and an error message |
 
-|test|input|output|other|
-|---|---|---|---|
-| send message | body(String)| (200:succeeded) Xor (400:failed) Xor (403:no permission)| msgtype is set to m.txt |
-| reply  | body(String) and event_id(integer)| (200:succeeded) Xor (400:failed) Xor (403:no permission)| msgtype is set to m.txt |
-| delete message| event_id(integer) and optional( reason(String)) |(200:succeeded) Xor (400:failed) Xor (403:no permission)| is used for deleting all kinds of events
+| test           | input                                           | output                                                   | other                                    |
+|----------------|-------------------------------------------------|----------------------------------------------------------|------------------------------------------|
+| send message   | body(String)                                    | (200:succeeded) Xor (400:failed) Xor (403:no permission) | msgtype is set to m.txt                  |
+| reply          | body(String) and event_id(integer)              | (200:succeeded) Xor (400:failed) Xor (403:no permission) | msgtype is set to m.txt                  |
+| delete message | event_id(integer) and optional( reason(String)) | (200:succeeded) Xor (400:failed) Xor (403:no permission) | is used for deleting all kinds of events |
 
 ## Exercise 7: Black-box functionality test cases
 Develop (at least) 12 black-box functionality test cases to test your sut and write them in your test notation. Motivate your choice for these test cases, and make clear which test generation technique you used for each test (EP, BVA, state-based, use-case, . . . ).
