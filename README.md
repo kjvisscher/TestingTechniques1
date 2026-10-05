@@ -37,7 +37,6 @@ mkdir -p ~/synapse-local
 cd ~/synapse-local
 mkdir data
 ```
-
 ### 3) Config Synapse
 ```sh
 docker run -it --rm \

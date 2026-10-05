@@ -222,6 +222,25 @@ static int login(char *token, const size_t token_size) {
     return 1;
 }
 
+// Remove rate limit
+static int remove_rate_limit(const char *token) {
+    char response[RESPONSE_BUFFER_SIZE];
+    const char rate_limit_body[] = "{\"messages_per_second\": 0, \"burst_count\": 0}";
+
+    if (try_send_request("POST", "/_synapse/admin/v1/users/@" TEST_USERNAME ":localhost/override_ratelimit", token, rate_limit_body, response, sizeof(response)) != 0) {
+        fprintf(stderr, "Remove rate limit failed: could not reach Synapse at %s:%s\n", SYNAPSE_HOST, SYNAPSE_PORT);
+        return 0;
+    }
+
+    const int status = http_status_code(response);
+    if (status != 200) {
+        fprintf(stderr, "Remove rate limit failed: expected HTTP status 200 but got %d\n", status);
+        return 0;
+    }
+
+    return 1;
+}
+
 // Create a new room and return its ID
 static void create_room(const char *token, char *room_id, const size_t room_id_size) {
     char response[RESPONSE_BUFFER_SIZE];
@@ -300,7 +319,7 @@ START_TEST(test_message_send_wrong_method) {
     send_request("POST", path, access_token, VALID_MESSAGE, response, sizeof(response));
 
     const int status = http_status_code(response);
-    ck_assert_msg(status == 404 || status == 405, "Expected HTTP status 404 or 405 but got %d", status);
+    ck_assert_msg(status == 405, "Expected HTTP status 404 or 405 but got %d", status);
     assert_error(response, status, "M_UNRECOGNIZED");
 }
 
@@ -317,13 +336,13 @@ START_TEST(test_message_send_empty_message) {
 
 END_TEST
 
-// Message body has wrong JSON type, accepted as body is not validated
+// Message body has wrong JSON type, rejected because 'body' not a string type
 START_TEST(test_message_send_wrong_type) {
     char response[RESPONSE_BUFFER_SIZE];
 
     send_message(test_room_id, access_token, "{\"body\":12345,\"msgtype\":\"m.text\"}", response, sizeof(response));
 
-    assert_event_sent(response);
+    assert_error(response, 400, "M_UNKNOWN");
 }
 
 END_TEST
@@ -378,6 +397,7 @@ END_TEST
 
 int main(void) {
     login(access_token, sizeof(access_token));
+    remove_rate_limit(access_token);
 
     Suite *suite = suite_create("Message Test Suite");
     TCase *test_cases = tcase_create("Message Send Test Case");
