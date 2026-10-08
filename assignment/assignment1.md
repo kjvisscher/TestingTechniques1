@@ -28,24 +28,24 @@ References to relevant documentation:
 - Used Synapse image: https://hub.docker.com/r/matrixdotorg/synapse/
 - Public Synapse repository: https://github.com/element-hq/synapse/
 ## Exercise 2: What part of Synapse to test
-We're going to test chatting between two users in a chatroom. By recreating chatrooms, we can create identical test conditions without needing to reset the container between runs. We intend to test the part dealing with chatting in a room primairly from the perspective of the user interaction that happens on the server. This means we need to test the components dealing with client-server API and room events. 
-We intend to test the following features/functionality: 
-1. Sending a message
-2. Deleting a message
-3. Replying to a message
-4. Removing a reply 
+We're going to test sending a message into a chatroom. By recreating chatrooms, we can create identical test conditions without needing to reset the container between runs. We intend to test the part dealing with chatting in a room primairly from the perspective of the user interaction that happens on the server. This means we need to test the components dealing with client-server API and room events. 
+We intend to test sending messages by varying the input parameters:
+1. Url with method
+2. Headers focusing on authentication
+3. The message body:
+   1. Name
+   2. User
+   3. Content
+
 
 The interface utilized during testing will be the client-server API. Relevant documentation can be found in the [Matrix specification](https://spec.matrix.org/v1.19/client-server-api/). Refer to the following chapters:
 
 | Feature               | Relevant Chapter                                                                        |
 | --------------------- | --------------------------------------------------------------------------------------- |
 | Errors                | [Chapter 1.1](https://spec.matrix.org/v1.19/client-server-api/#standard-error-response) |
-| Room events           | [Chapter 7](https://spec.matrix.org/v1.19/client-server-api/#events)                    |
-| Deleting a message    | [Chapter 7.9](https://spec.matrix.org/v1.19/client-server-api/#redactions)              |
-| Removing a reply      | [Chapter 7.9](https://spec.matrix.org/v1.19/client-server-api/#redactions)              |
+| Room events           | [Chapter 7](https://spec.matrix.org/v1.19/client-server-api/#events)                    |          |          |
 | Sending a message     | [Chapter 10.2](https://spec.matrix.org/v1.19/client-server-api/#instant-messaging)      |
-| Replying to a message | [Chapter 10.3](https://spec.matrix.org/v1.19/client-server-api/#rich-replies)           |
-> *Note that sending a message and replying to it are both events and thus both are redacted the same way.*
+
 ## Exercise 3: Test architecture for the testing
 Illustrated below is a hybrid high level component view and class diagram of our testing application in relation to the SUT. We have decided to picture Synapse as a black box, as all test cases are communicated over the same protocol and are handled in the same interface.
 
@@ -62,7 +62,7 @@ We make the following assumptions about Synapse:
 
 The primary testing tool used for this project is a unit testing framework for C called *Check* by Arien Malec (see [repository](https://github.com/libcheck/check)). 
 ## Exercise 4: What typical test cases look like
-The initial state for our tests will be a chat room with (at least) 2 users, with possibly extra requirements depending on the test. Test input and output are plain text JSON objects transmitted over HTTP. Test input requires some sort of event (such as sending a message, replying to a message, etc.) as input alongside additional required parameters as specified by the Matrix API. Test output will include a HTTP status code depending on the success of the request, alongside a body which includes plain text information or possible errors. We can observe whether a test has succeeded by comparing the received response with an expected response and asserting that:
+The initial state for our tests will be a chat room with one users, with possibly extra requirements depending on the test. Test input and output are plain text JSON objects transmitted over HTTP. Test input requires some sort of event (such as sending a message, replying to a message, etc.) as input alongside additional required parameters as specified by the Matrix API or the synapse api. If these 2 conflict we priorize the second and we will document it. Test output will include a HTTP status code depending on the success of the request, alongside a body which includes plain text information or possible errors. We can observe whether a test has succeeded by comparing the received response with an expected response and asserting that:
 1. The HTTP status codes match
 2. Relevant fields in the JSON body (i.e. message content) match.
 
@@ -73,6 +73,7 @@ Our test cases are based on so called *room events*. A room event consists out o
 | GET  | joined_members        |                                     |                      | 200                  | Map to RoomMembers |
 | PUT  | m.room.message        | body : "Hi" <br> msgtype : "m.text" | Not in room          | 403                  | M_FORBIDDEN        |
 
+Our few tests to test the creation of a room are discribed in the same way.
 
 
 
@@ -193,4 +194,4 @@ Message Send Test Case:test_message_send_unknown_room:0: Passed
 ## Exercise 9: Analysation and explanation
 Analyze and explain the observed test results.
 ## Exercise 10: Test tools
-Here we have a link to our git repo: https://github.com/kjvisscher/TestingTechniques1. For instructions on how to run it see the readme. Note that an docker installation is required with synapse running on it as described there. In additon a c++ installation with cmake and Check installed is needed. Valgrind is not needed for our code to work despite it being discribed in the readme. We require the username to be user and the password to be user for the automatic authenication.
+Here we have a link to our git repo: https://github.com/kjvisscher/TestingTechniques1. For instructions on how to run it see the readme. Note that an docker installation is required with synapse running on it as described there. In additon a c++ installation with cmake and Check installed is needed. Valgrind is not needed for our code to work despite it being discribed in the readme. Then you need to edit the the constants in test_message.c to match your username and password, by default they are set to dirk. There is more information about how the requests work for our tests if needed in requests.md.
