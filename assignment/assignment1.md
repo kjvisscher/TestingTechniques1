@@ -200,6 +200,8 @@ P:Message Send Test Case:test_message_send_unknown_msgtype:0: Passed
 P:Message Send Test Case:test_message_send_unknown_room:0: Passed
 ```
 ## Exercise 9: Analysation and explanation
-Analyze and explain the observed test results.
+In general all the test cases passed and are further explained in the chapters above. Except test case 6, wrong HTTP Method. The specification defines that an implemented method should return an error 404 and when the method is not implemented it should return an error 405. The input is an inplemented method, thus the expected outcome is 404 but the actual result is 405.
+[Matrix documentation](https://spec.matrix.org/v1.19/identity-service-api/#standard-error-response) 
+
 ## Exercise 10: Test tools
 Here we have a link to our git repo: https://github.com/kjvisscher/TestingTechniques1. For instructions on how to run it see the readme. Note that an docker installation is required with synapse running on it as described there. In additon a c++ installation with cmake and Check installed is needed. Valgrind is not needed for our code to work despite it being discribed in the readme. Then you need to edit the the constants in test_message.c to match your username and password, by default they are set to dirk. There is more information about how the requests work for our tests if needed in requests.md.
