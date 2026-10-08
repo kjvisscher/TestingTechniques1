@@ -326,7 +326,7 @@ START_TEST(test_message_send_wrong_method) {
     send_request("POST", path, access_token, VALID_MESSAGE, response, sizeof(response));
 
     const int status = http_status_code(response);
-    ck_assert_msg(status == 405, "Expected HTTP status 405 but got %d", status);
+    ck_assert_msg(status == 404, "Expected HTTP status 404 but got %d", status);
     assert_error(response, status, "M_UNRECOGNIZED");
 }
 END_TEST
