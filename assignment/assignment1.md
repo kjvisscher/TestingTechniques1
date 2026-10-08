@@ -63,7 +63,7 @@ We make the following assumptions about Synapse:
 
 The primary testing tool used for this project is a unit testing framework for C called *Check* by Arien Malec (see [repository](https://github.com/libcheck/check)). 
 ## Exercise 4: What typical test cases look like
-The initial state for our tests will be a chat room with one users, with possibly extra requirements depending on the test. Test input and output are plain text JSON objects transmitted over HTTP. Test input requires some sort of event (such as sending a message, replying to a message, etc.) as input alongside additional required parameters as specified by the Matrix API or the synapse api. If these 2 conflict we priorize the second and we will document it. Test output will include a HTTP status code depending on the success of the request, alongside a body which includes plain text information or possible errors. We can observe whether a test has succeeded by comparing the received response with an expected response and asserting that:
+The initial state for our tests will be a chat room with one users, with possibly extra requirements depending on the test. Test input and output are plain text JSON objects transmitted over HTTP. Test input requires some sort of event (such as sending a message, replying to a message, etc.) as input alongside additional required parameters as specified by the Matrix API. Test output will include a HTTP status code depending on the success of the request, alongside a body which includes plain text information or possible errors. We can observe whether a test has succeeded by comparing the received response with an expected response and asserting that:
 1. The HTTP status codes match
 2. Relevant fields in the JSON body (i.e. message content) match.
 
@@ -122,9 +122,11 @@ constanst and unrelated variables are mosly omitted, these typicaly apply to all
 | (404:not found)         | error code and an error message |
 | (405:unrecognized)      | error code and an error message |
 
+405 apears in our failed test case
+
 | test           | input                                           | output                                                   | other                                    |
 |----------------|-------------------------------------------------|----------------------------------------------------------|------------------------------------------|
-| send message   | body(String) and optional(sender(String)) and msgtype(String)                                  | e(200:succeeded) Xor (400:failed) Xor (403:no permission) Xor (404:not found) Xor (405:unrecognized) | msgtype is set to m.txt if nonsence is entered                  |
+| send message   | body(String) and optional(sender(String)) and msgtype(String)                                  | e(200:succeeded) Xor (400:failed) Xor (403:no permission) Xor (404:not found)| msgtype is set to m.txt if nonsence is entered                  |
 | create room | name(String) | r(200:succeeded)|there are lot of unused optional parameters for this|
 
 
