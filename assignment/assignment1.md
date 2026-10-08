@@ -109,24 +109,24 @@ Yes. Docker publishes port `8008` to the host, so the Client-Server API is reach
 
 # Test Development
 ## Exercise 6: Domains, inputs and interfaces
-What are the domains of test inputs and outputs, what are valid and invalid inputs, and over which interfaces are they communicated?
-
-The interface is in all cases the client server api trough http and our formatting functions.
-constanst and unrelated variables are mosly omitted, these typicaly apply to all room events which fall outside the scope of our testing. Optional was used to give an optional argument.
+The interface is in all cases the client server api trough HTTP and our formatting functions.
+constanst and unrelated variables are mosly omitted, these typicaly apply to all room events which fall outside the scope of our testing. Optional was used to give an optional argument. These domains assume that the HTTP requests are valid. additionaly as messages are room events you need to specify to which room you send a event. This is done by a room id(String).
 
 | datatype                | details                         |
 |-------------------------|---------------------------------|
 | String                  | sequence of unicode characters  |
-| (200:succeeded)         | contains event id               |
+| e(200:succeeded)         | contains event id               |
+| r(200:succeeded)         | contains room id               |
 | (400:formatting errors) | error code and an error message |
 | (403:no permission)     | error code and an error message |
 | (404:not found)         | error code and an error message |
+| (405:unrecognized)      | error code and an error message |
 
 | test           | input                                           | output                                                   | other                                    |
 |----------------|-------------------------------------------------|----------------------------------------------------------|------------------------------------------|
-| send message   | body(String)                                    | (200:succeeded) Xor (400:failed) Xor (403:no permission) | msgtype is set to m.txt                  |
-| reply          | body(String) and event_id(integer)              | (200:succeeded) Xor (400:failed) Xor (403:no permission) | msgtype is set to m.txt                  |
-| delete message | event_id(integer) and optional( reason(String)) | (200:succeeded) Xor (400:failed) Xor (403:no permission) | is used for deleting all kinds of events |
+| send message   | body(String) and optional(sender(String)) and msgtype(String)                                  | e(200:succeeded) Xor (400:failed) Xor (403:no permission) Xor (404:not found) Xor (405:unrecognized) | msgtype is set to m.txt if nonsence is entered                  |
+| create room | name(String) | r(200:succeeded)|there are lot of unused optional parameters for this|
+
 
 ## Exercise 7: Black-box functionality test cases
 Develop (at least) 12 black-box functionality test cases to test your sut and write them in your test notation. Motivate your choice for these test cases, and make clear which test generation technique you used for each test (EP, BVA, state-based, use-case, . . . ).
@@ -160,7 +160,7 @@ Develop (at least) 12 black-box functionality test cases to test your sut and wr
 | Type | Request               | JSON Parameters                        | Test Conditions  | Expected Status Code | Expected Body      |
 |------|-----------------------|----------------------------------------|------------------|----------------------|--------------------|
 | PUT  | m.room.message        | body : "Test", <br> msgtype : "m.text" | Bad HTTP Endpoint | 404                 | M_UNRECOGNIZED     |
-| POST | m.room.message        | body : "Test", <br> msgtype : "m.text" | Wrong HTTP Method | 404                 | M_UNRECOGNIZED     |
+| POST | m.room.message        | body : "Test", <br> msgtype : "m.text" | Wrong HTTP Method | 405                 | M_UNRECOGNIZED     |
 
 ### JSON Body Tests
 | Type | Request               | JSON Parameters                        | Test Conditions  | Expected Status Code | Expected Body      |
