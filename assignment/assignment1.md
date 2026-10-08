@@ -61,7 +61,7 @@ We make the following assumptions about Synapse:
 
 The primary testing tool used for this project is a unit testing framework for C called *Check* by Arien Malec (see [repository](https://github.com/libcheck/check)). 
 ## Exercise 4: What typical test cases look like
-The initial state for our tests will be a chat room with (at least) 2 users, with possibly extra requirements depending on the test. Test input and output are plain text JSON objects transmitted over HTTP. Test input requires some sort of event (such as sending a message, replying to a message, etc.) as input alongside additional required parameters as specified by the Matrix API. Test output will include a HTTP status code depending on the success of the request, alongside a body which includes plain text information or possible errors. We can observe whether a test has succeeded by comparing the received response with an expected response and asserting that:
+The initial state for our tests will be a chat room with one users, with possibly extra requirements depending on the test. Test input and output are plain text JSON objects transmitted over HTTP. Test input requires some sort of event (such as sending a message, replying to a message, etc.) as input alongside additional required parameters as specified by the Matrix API or the synapse api. If these 2 conflict we priorize the second and we will document it. Test output will include a HTTP status code depending on the success of the request, alongside a body which includes plain text information or possible errors. We can observe whether a test has succeeded by comparing the received response with an expected response and asserting that:
 1. The HTTP status codes match
 2. Relevant fields in the JSON body (i.e. message content) match.
 
@@ -72,6 +72,7 @@ Our test cases are based on so called *room events*. A room event consists out o
 | GET  | joined_members        |                                     |                      | 200                  | Map to RoomMembers |
 | PUT  | m.room.message        | body : "Hi" <br> msgtype : "m.text" | Not in room          | 403                  | M_FORBIDDEN        |
 
+Our few tests to test the creation of a room are discribed in the same way.
 
 
 
