@@ -28,12 +28,15 @@ References to relevant documentation:
 - Used Synapse image: https://hub.docker.com/r/matrixdotorg/synapse/
 - Public Synapse repository: https://github.com/element-hq/synapse/
 ## Exercise 2: What part of Synapse to test
-We're going to test chatting between two users in a chatroom. By recreating chatrooms, we can create identical test conditions without needing to reset the container between runs. We intend to test the part dealing with chatting in a room primairly from the perspective of the user interaction that happens on the server. This means we need to test the components dealing with client-server API and room events. 
-We intend to test the following features/functionality: 
-1. Sending a message
-2. Deleting a message
-3. Replying to a message
-4. Removing a reply 
+We're going to test sending a message into a chatroom. By recreating chatrooms, we can create identical test conditions without needing to reset the container between runs. We intend to test the part dealing with chatting in a room primairly from the perspective of the user interaction that happens on the server. This means we need to test the components dealing with client-server API and room events. 
+We intend to test sending messages by varying the input parameters:
+1. Url with method
+2. Headers focusing on authentication
+3. The message body:
+   1. Name
+   2. User
+   3. Content
+
 
 The interface utilized during testing will be the client-server API. Relevant documentation can be found in the [Matrix specification](https://spec.matrix.org/v1.19/client-server-api/). Refer to the following chapters:
 
@@ -41,11 +44,9 @@ The interface utilized during testing will be the client-server API. Relevant do
 | --------------------- | --------------------------------------------------------------------------------------- |
 | Errors                | [Chapter 1.1](https://spec.matrix.org/v1.19/client-server-api/#standard-error-response) |
 | Room events           | [Chapter 7](https://spec.matrix.org/v1.19/client-server-api/#events)                    |
-| Deleting a message    | [Chapter 7.9](https://spec.matrix.org/v1.19/client-server-api/#redactions)              |
-| Removing a reply      | [Chapter 7.9](https://spec.matrix.org/v1.19/client-server-api/#redactions)              |
+| Deleting a message    | [Chapter 7.9](https://spec.matrix.org/v1.19/client-server-api/#redactions)              |          |
 | Sending a message     | [Chapter 10.2](https://spec.matrix.org/v1.19/client-server-api/#instant-messaging)      |
-| Replying to a message | [Chapter 10.3](https://spec.matrix.org/v1.19/client-server-api/#rich-replies)           |
-> *Note that sending a message and replying to it are both events and thus both are redacted the same way.*
+
 ## Exercise 3: Test architecture for the testing
 Illustrated below is a hybrid high level component view and class diagram of our testing application in relation to the SUT. We have decided to picture Synapse as a black box, as all test cases are communicated over the same protocol and are handled in the same interface.
 
