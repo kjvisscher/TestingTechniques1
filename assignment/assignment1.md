@@ -27,6 +27,7 @@ References to relevant documentation:
 - Latest Matrix API: https://spec.matrix.org/latest/
 - Used Synapse image: https://hub.docker.com/r/matrixdotorg/synapse/
 - Public Synapse repository: https://github.com/element-hq/synapse/
+- Synapse documentation: https://docs.element.io/latest/
 ## Exercise 2: What part of Synapse to test
 We're going to test sending a message into a chatroom. By recreating chatrooms, we can create identical test conditions without needing to reset the container between runs. We intend to test the part dealing with chatting in a room primairly from the perspective of the user interaction that happens on the server. This means we need to test the components dealing with client-server API and room events. 
 We intend to test sending messages by varying the input parameters:
