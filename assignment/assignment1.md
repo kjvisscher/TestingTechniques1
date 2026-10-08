@@ -168,6 +168,13 @@ As described earlier, we're using an automated test application to run these tes
 2. The body of the returned response is not empty
 3. (For success) The body of the returned response contains an event id
 4. (For failure) The body of the returned response contains a specified error code
+
+
+| Test suite    | Tests passed |
+| ------------- | ------------ |
+| Room creation | 1/1          |
+| Send message  | 10/11        |
+
 ### Room creation  
 ```c  
 Running suite(s): Room Test Suite  
@@ -177,19 +184,19 @@ Room Creation Test Case:test_room_create:0: Passed
   
 ### Send message  
 ```c  
-Running suite(s): Message Test Suite  
-100%: Checks: 11, Failures: 0, Errors: 0  
-Message Send Test Case:test_message_send:0: Passed  
-Message Send Test Case:test_message_send_bad_token:0: Passed  
-Message Send Test Case:test_message_send_no_token:0: Passed  
-Message Send Test Case:test_message_send_bad_endpoint:0: Passed  
-Message Send Test Case:test_message_send_wrong_method:0: Passed  
-Message Send Test Case:test_message_send_empty_message:0: Passed  
-Message Send Test Case:test_message_send_wrong_type:0: Passed  
-Message Send Test Case:test_message_send_invalid_sender:0: Passed  
-Message Send Test Case:test_message_send_invalid_json:0: Passed  
-Message Send Test Case:test_message_send_unknown_msgtype:0: Passed  
-Message Send Test Case:test_message_send_unknown_room:0: Passed  
+Running suite(s): Message Test Suite
+90%: Checks: 11, Failures: 1, Errors: 0
+P:Message Send Test Case:test_message_send:0: Passed
+P:Message Send Test Case:test_message_send_bad_token:0: Passed
+P:Message Send Test Case:test_message_send_no_token:0: Passed
+P:Message Send Test Case:test_message_send_bad_endpoint:0: Passed
+F:Message Send Test Case:test_message_send_wrong_method:0: Expected HTTP status 404 but got 405
+P:Message Send Test Case:test_message_send_empty_message:0: Passed
+P:Message Send Test Case:test_message_send_wrong_type:0: Passed
+P:Message Send Test Case:test_message_send_invalid_sender:0: Passed
+P:Message Send Test Case:test_message_send_invalid_json:0: Passed
+P:Message Send Test Case:test_message_send_unknown_msgtype:0: Passed
+P:Message Send Test Case:test_message_send_unknown_room:0: Passed
 ```
 ## Exercise 9: Analysation and explanation
 Analyze and explain the observed test results.
