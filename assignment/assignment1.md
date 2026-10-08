@@ -67,7 +67,7 @@ The initial state for our tests will be a chat room with one users, with possibl
 1. The HTTP status codes match
 2. Relevant fields in the JSON body (i.e. message content) match.
 
-Our test cases are based on so called *room events*. A room event consists out of either a GET request for requesting information from the server, or a PUT request for sending events to the room. Since each room event requires the `roomID` of the current room, which we won't test on, the test cases will not explicitly mention this value. However remember this will always be an implicit parameter in the HTTP request. The two distinct types of requests will be noted in the following way:
+Our test cases are based on so called *room events*. A room event consists out of either a GET request for requesting information from the server, or a PUT request for sending events to the room. Since each room event requires the `roomID` of the current room, which we won't test on, the test cases will not explicitly mention this value. However remember this will always be an implicit parameter in the HTTP request. The two distinct types of requests will be notated in the following way:
 
 | Type | Request               | JSON Parameters                     | Extra Conditions     | Expected Status Code | Expected Body/Error|
 |------|-----------------------|-------------------------------------|----------------------|----------------------|--------------------|
@@ -94,13 +94,11 @@ The tests trigger the SUT through the Matrix Client-Server HTTP API at `http://l
 
 Output interface: The test code reads two things from every response: the HTTP status code and the JSON body. Assertions are made on fields such as `event_id`, `errcode`, `error`, and the `content.body` and `m.relates_to` of events returned by `/messages`.
 
-- b) implementation of stubs, drivers, used test tools;
-
 The test driver is a C program using the Check library. Tests are grouped in suites (based on functionalities like sending, deleting, replying). A small helper library wraps libcurl for sending the HTTP requests and cJSON for building and parsing the JSON bodies. The helpers hide details such as headers, authentication and transaction IDs, so the test cases themselves stay short.
 
 No stubs or mocks are used, as the tests run against the real Synapse server in Docker. The second user in a room is simulated by the driver with a second access token, so no real client is needed. The Element web client is not part of the automated tests.
 
-- c) any additional tools or implementation details that are necessary;
+Additional tools or implementation details:
   - Two test users are registered once before the tests with `register_new_matrix_user` inside the container. Their access tokens are retrieved through `POST /_matrix/client/v3/login`.
   - A Check fixture (`setup`) creates a fresh room before each test and invites and joins the second user. This gives every test the same initial state without resetting the container.
   - Matrix requires a unique transaction ID (`txnId`) for each `PUT` request, so the helpers generate a new counter-based ID per request.
@@ -109,25 +107,24 @@ Docker publishes port `8008` to the host, so the Client-Server API is reachable 
 
 # Test Development
 ## Exercise 6: Domains, inputs and interfaces
-The interface is in all cases the client server api trough HTTP and our formatting functions.
-constanst and unrelated variables are mosly omitted, these typicaly apply to all room events which fall outside the scope of our testing. Optional was used to give an optional argument. These domains assume that the HTTP requests are valid. additionaly as messages are room events you need to specify to which room you send a event. This is done by a room id(String).
+The interface used is the client server API through HTTP requests and our formatting functions. Constant and unrelated variables are omitted, since these typicaly apply to all room events which fall outside the scope of our testing. These domains assume that the HTTP requests are valid. Additionaly as messages are room events you need to specify to which room you send a event. This is done by a Room_ID as a string.
 
-| datatype                | details                         |
-|-------------------------|---------------------------------|
-| String                  | sequence of unicode characters  |
-| e(200:succeeded)         | contains event id               |
-| r(200:succeeded)         | contains room id               |
-| (400:formatting errors) | error code and an error message |
-| (403:no permission)     | error code and an error message |
-| (404:not found)         | error code and an error message |
-| (405:unrecognized)      | error code and an error message |
+| Datatype                  | Contents                        |
+|---------------------------|---------------------------------|
+| String                    | Sequence of Unicode Characters  |
+| e(200 : Succeeded)        | Event_ID                        |
+| r(200 : Succeeded)        | Room_ID                         |
+| 400 : Formatting Errors   | Error Code and Message          |
+| 403 : No Permission       | Error Code and Message          |
+| 404 : Not Found           | Error Code and Message          |
+| 405 : Unrecognized        | Error Code and Message          |
 
-405 apears in our failed test case
+405 appears in our failed test case
 
-| test           | input                                           | output                                                   | other                                    |
+| Test           | Input                                           | Output                                                   | Other                                    |
 |----------------|-------------------------------------------------|----------------------------------------------------------|------------------------------------------|
-| send message   | body(String) and optional(sender(String)) and msgtype(String)                                  | e(200:succeeded) Xor (400:failed) Xor (403:no permission) Xor (404:not found)| msgtype is set to m.txt if nonsence is entered                  |
-| create room | name(String) | r(200:succeeded)|there are lot of unused optional parameters for this|
+| Send Message   | body: String, <br> msgtype: String <br> sender: String (Optional)                   | e(200:succeeded) / (400:failed) / (403:no permission) / (404:not found)| msgtype is set to m.txt if type is unrecognized                  |
+| Create Room | name : String | r(200:succeeded)|there are lot of unused optional parameters for this|
 
 
 ## Exercise 7: Black-box functionality test cases
@@ -162,7 +159,7 @@ constanst and unrelated variables are mosly omitted, these typicaly apply to all
 | Type | Request               | JSON Parameters                        | Test Conditions    | Expected Status Code | Expected Body    |
 |------|-----------------------|----------------------------------------|--------------------|----------------------|------------------|
 | PUT  | m.room.message        | body : "Test", <br> msgtype : "m.text" | Room doesn't exist | 403                  | M_FORBIDDEN      |
-| PUT  | m.room.message        | body : "Test", <br> msgtype : "m.text" | Sender doesn't match token | 403                  | M_FORBIDDEN      |
+| PUT  | m.room.message        | body : "Test", <br> msgtype : "m.text" | Sender doesn't match token | 200                 | Event_ID         |
 
 # Test Execution
 ## Exercise 8: Testing the SUT
@@ -201,8 +198,8 @@ P:Message Send Test Case:test_message_send_invalid_json:0: Passed
 P:Message Send Test Case:test_message_send_unknown_msgtype:0: Passed
 P:Message Send Test Case:test_message_send_unknown_room:0: Passed
 ```
-## Exercise 9: Analysation and explanation
-In general all the test cases passed and are further explained in the chapters above. Except test case 6, wrong HTTP Method. The specification defines that an implemented method should return an error 404 and when the method is not implemented it should return an error 405. The input is an inplemented method, thus the expected outcome is 404 but the actual result is 405.
+## Exercise 9: Analysis and explanation
+In general all the test cases passed and are further explained in the chapters above. Except test case 6, wrong HTTP Method. The specification defines that an implemented method should return an error 404 and when the method is not implemented it should return an error 405. The input is an implemented method, thus the expected outcome is 404 but the actual result is 405.
 [Matrix documentation](https://spec.matrix.org/v1.19/identity-service-api/#standard-error-response) 
 
 ## Exercise 10: Test tools
