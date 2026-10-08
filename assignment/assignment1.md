@@ -43,8 +43,7 @@ The interface utilized during testing will be the client-server API. Relevant do
 | Feature               | Relevant Chapter                                                                        |
 | --------------------- | --------------------------------------------------------------------------------------- |
 | Errors                | [Chapter 1.1](https://spec.matrix.org/v1.19/client-server-api/#standard-error-response) |
-| Room events           | [Chapter 7](https://spec.matrix.org/v1.19/client-server-api/#events)                    |
-| Deleting a message    | [Chapter 7.9](https://spec.matrix.org/v1.19/client-server-api/#redactions)              |          |
+| Room events           | [Chapter 7](https://spec.matrix.org/v1.19/client-server-api/#events)                    |          |          |
 | Sending a message     | [Chapter 10.2](https://spec.matrix.org/v1.19/client-server-api/#instant-messaging)      |
 
 ## Exercise 3: Test architecture for the testing
