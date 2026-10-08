@@ -59,6 +59,7 @@ The output of the SUT will be in compliance with the matrix communication protoc
 We make the following assumptions about Synapse:
 1. By recreating rooms for each test, the behavior of messages is consistent throughout.
 2. The behavior of Synapse is identical whether it is run locally or when running on a public server. That is, the test results for achieved from running Synapse as a standalone Docker image are assumed to match those achieved from testing a "real" installation connected to multiple other servers over the internet.
+3. Rate limits are assumed not to apply when running these tests.
 
 The primary testing tool used for this project is a unit testing framework for C called *Check* by Arien Malec (see [repository](https://github.com/libcheck/check)). 
 ## Exercise 4: What typical test cases look like
@@ -104,9 +105,7 @@ No stubs or mocks are used, as the tests run against the real Synapse server in 
   - A Check fixture (`setup`) creates a fresh room before each test and invites and joins the second user. This gives every test the same initial state without resetting the container.
   - Matrix requires a unique transaction ID (`txnId`) for each `PUT` request, so the helpers generate a new counter-based ID per request.
 
-- d) are all test interfaces in the architecture accessible?
-
-Yes. Docker publishes port `8008` to the host, so the Client-Server API is reachable by the test application. This is the only interface the tests use. The internal components of Synapse (HTTP listener, API handlers, database) are not accessed directly (in line with black-box testing) their behaviour is observed only through the API responses.
+Docker publishes port `8008` to the host, so the Client-Server API is reachable by the test application. This is the only interface the tests use. The internal components of Synapse (HTTP listener, API handlers, database) are not accessed directly (in line with black-box testing) their behaviour is observed only through the API responses.
 
 # Test Development
 ## Exercise 6: Domains, inputs and interfaces
@@ -130,20 +129,6 @@ constanst and unrelated variables are mosly omitted, these typicaly apply to all
 
 
 ## Exercise 7: Black-box functionality test cases
-Develop (at least) 12 black-box functionality test cases to test your sut and write them in your test notation. Motivate your choice for these test cases, and make clear which test generation technique you used for each test (EP, BVA, state-based, use-case, . . . ).
-
-1. Create room (without alias)
-2. Sending a message
-3. Sending a message (bad authentication token)
-4. Sending a message (missing authentication header)
-5. Sending a message (bad endpoint)
-6. Sending a message (wrong HTTP method)
-7. Sending a message (empty body)
-8. Sending a message (non-existant message type)
-9. Sending a message (wrong JSON field type)
-10. Sending a message (invalid JSON)
-11. Sending a message (Room doesn't exists)
-12. Sending a message (Sender doesn't match token)
 
 ### Basic Tests
 | Type | Request               | JSON Parameters                        | Test Conditions  | Expected Status Code | Expected Body      |
@@ -179,7 +164,34 @@ Develop (at least) 12 black-box functionality test cases to test your sut and wr
 
 # Test Execution
 ## Exercise 8: Testing the SUT
-Test your sut with the developed test cases, either manually, or using some existing or self-developed test execution tool. Describe for each test case the outcome of test execution.
+As described earlier, we're using an automated test application to run these tests. For all of these test cases it is asserted that:  
+1. The returned HTTP status code matches what is expected   
+2. The body of the returned response is not empty
+3. (For success) The body of the returned response contains an event id
+4. (For failure) The body of the returned response contains a specified error code
+### Room creation  
+```c  
+Running suite(s): Room Test Suite  
+100%: Checks: 1, Failures: 0, Errors: 0  
+Room Creation Test Case:test_room_create:0: Passed  
+```  
+  
+### Send message  
+```c  
+Running suite(s): Message Test Suite  
+100%: Checks: 11, Failures: 0, Errors: 0  
+Message Send Test Case:test_message_send:0: Passed  
+Message Send Test Case:test_message_send_bad_token:0: Passed  
+Message Send Test Case:test_message_send_no_token:0: Passed  
+Message Send Test Case:test_message_send_bad_endpoint:0: Passed  
+Message Send Test Case:test_message_send_wrong_method:0: Passed  
+Message Send Test Case:test_message_send_empty_message:0: Passed  
+Message Send Test Case:test_message_send_wrong_type:0: Passed  
+Message Send Test Case:test_message_send_invalid_sender:0: Passed  
+Message Send Test Case:test_message_send_invalid_json:0: Passed  
+Message Send Test Case:test_message_send_unknown_msgtype:0: Passed  
+Message Send Test Case:test_message_send_unknown_room:0: Passed  
+```
 ## Exercise 9: Analysation and explanation
 Analyze and explain the observed test results.
 ## Exercise 10: Test tools
