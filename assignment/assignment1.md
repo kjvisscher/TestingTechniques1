@@ -10,7 +10,7 @@ As a chat server, Synapse allows a user to communicate with it and other users b
 - The inputs include user credentials (registration/login), room actions (create, join, invite), and messages, entered through the `app.element.io` UI or sent as JSON in HTTP requests.
 - The outputs consist of room - and message data rendered in the `app.element.io` UI, or viewed as raw JSON responses and HTTP status codes when interacting with the API directly.
 - Synapse runs in a Docker container built from source on the tester's machine. Element runs as a web client in a browser, connecting to the local Synapse instance over HTTP.
-- The server is started with `docker run` (built beforehand with `docker build`) and stopped with `docker stop`/`docker rm`; the client is simply opened/closed in a browser tab, with the homeserver URL matching that of port exposed by Docker (see [[TestingTechniques1/README]]).
+- The server is started with `docker run` (built beforehand with `docker build`) and stopped with `docker stop`/`docker rm`; the client is simply opened/closed in a browser tab, with the homeserver URL matching that of port exposed by Docker (see [README.md](https://github.com/kjvisscher/TestingTechniques1/blob/main/README.md)).
 
 ![Diagram](diagrams/external.drawio.png)
 
@@ -20,7 +20,7 @@ For black-box testing the SUT's internal structure, we mainly focus on the compo
 
 ![Diagram](diagrams/internal.drawio.png)
 
-The latest version of the Synapse repository ([1.161.0](https://github.com/element-hq/synapse/releases/tag/v1.161.0)) is ran using a docker container on the [latest image version](https://hub.docker.com/r/matrixdotorg/synapse). The repository and image are both run locally on either Linux or Windows operating systems. A basic setup procedure is required before running Synapse for the first time, as detailed in TestingTechniques1/README.
+The latest version of the Synapse repository ([1.161.0](https://github.com/element-hq/synapse/releases/tag/v1.161.0)) is ran using a docker container on the [latest image version](https://hub.docker.com/r/matrixdotorg/synapse). The repository and image are both run locally on either Linux or Windows operating systems. A basic setup procedure is required before running Synapse for the first time, as detailed in `TestingTechniques1/README.md`.
 
 References to relevant documentation:
 - Element home page: https://element.io/
@@ -158,27 +158,22 @@ Test case identification is based on the following convention: ID = suite_number
 # Test Execution
 ## Exercise 8: Testing the SUT
 As described [[#Exercise 4 What typical test cases look like|earlier]], we're using an automated test application to run these tests. If any of the assertions in this test fail, the testcase will too. The results are as follows:
-
-| Test suite    | Tests passed | Test errors |
-| ------------- | ------------ | ----------- |
-| Room creation | 1/1          | 0           |
-| Send message  | 11/11        | 0           |
 ### Room creation  
 ```c  
 Running suite(s): Room Test Suite  
 100%: Checks: 1, Failures: 0, Errors: 0  
-Room Creation Test Case:test_room_create:0: Passed  
+P:Room Creation Test Case:test_room_create:0: Passed  
 ```  
   
 ### Send message  
 ```c  
 Running suite(s): Message Test Suite
-90%: Checks: 11, Failures: 1, Errors: 0
+100%: Checks: 11, Failures: 0, Errors: 0
 P:Message Send Test Case:test_message_send:0: Passed
 P:Message Send Test Case:test_message_send_bad_token:0: Passed
 P:Message Send Test Case:test_message_send_no_token:0: Passed
 P:Message Send Test Case:test_message_send_bad_endpoint:0: Passed
-F:Message Send Test Case:test_message_send_wrong_method:0: Passed
+P:Message Send Test Case:test_message_send_wrong_method:0: Passed
 P:Message Send Test Case:test_message_send_empty_message:0: Passed
 P:Message Send Test Case:test_message_send_wrong_type:0: Passed
 P:Message Send Test Case:test_message_send_invalid_sender:0: Passed
@@ -187,8 +182,12 @@ P:Message Send Test Case:test_message_send_unknown_msgtype:0: Passed
 P:Message Send Test Case:test_message_send_unknown_room:0: Passed
 ```
 ## Exercise 9: Analysis and explanation
-All formulated test cases passed and are further explained in the chapters above. 
+The tests for all 12 formulated test cases passed, implying that the asserted values for each test match what we expect.
 
-Internally, we had some confusion about test case 2.5, as we expected it to return a different HTTP method. Currently, the [Matrix specification](https://spec.matrix.org/v1.19/push-gateway-api/#unsupported-endpoints) states that an unimplemented endpoint should return a 404 error when requested, and a 405 if the endpoint exists but not for the given HTTP method (which is the case for this test). We found an old GitHub issue [MSC3743](https://github.com/matrix-org/synapse/issues/14209) talking about updating this behavior and incorrectly concluded the expected behavior was to return a 404 instead.
+| Test suite    | Tests passed | Test errors |
+| ------------- | ------------ | ----------- |
+| Room creation | 1/1          | 0           |
+| Send message  | 11/11        | 0           |
+| **Total**     | 12/12        | 0           |
 ## Exercise 10: Test tools
 The code for our test application can be found in our public GitHub repository: https://github.com/kjvisscher/TestingTechniques1. For instructions on how to run it, see [README.md](https://github.com/kjvisscher/TestingTechniques1/blob/main/README.md). The first part of it contains a guide on how to get Synapse running in a Docker, written by us. The second part is an edited version of the *README* from an open sourced example project for Check, see https://github.com/vndmtrx/check-cmake-example. Note that Valgrind is not required to run the app. Before running, change the constants in `tests/test_room.c` and `tests/test_message.c` to match the admin's username and password for the local synapse installation (which in our testing were both "dirk"). Additional information about how the requests are performed (and how to mimick them) are provided in `assignment/requests.md`.
