@@ -65,12 +65,15 @@ The initial state for our tests will be a chat room with (at least) 2 users, wit
 1. The HTTP status codes match
 2. Relevant fields in the JSON body (i.e. message content) match.
 
-Our test cases are based on so called *room events*. A room event consists out of either a GET request for requesting information from the server, or a PUT request for sending events to the room. Since each room event requires the `roomID` of the current room, which we won't test on, the test cases will not explicitly mention this value. However remember this will always be an implicit parameter in the HTTP request. The two distinct types of requests will be noted in the following way:
+Our test cases are based on so called *room events*. A room event consists out of either a GET request for requesting information from the server, or a PUT request for sending events to the room. Since each room event requires the `roomID` of the current room, which we won't test on, the test cases will not explicitly mention this value. However remember this will always be an implicit parameter in the HTTP request. The two distinct types of requests will be noted in the following of 2 ways:
 
-| Type | Request               | JSON Parameters                     | Extra Conditions     | Expected Status Code | Expected Body/Error|
-|------|-----------------------|-------------------------------------|----------------------|----------------------|--------------------|
-| GET  | joined_members        |                                     |                      | 200                  | Map to RoomMembers |
-| PUT  | m.room.message        | body : "Hi" <br> msgtype : "m.text" | Not in room          | 403                  | M_FORBIDDEN        |
+| GET | Requested Information | Path Parameters | JSON Parameters | Expected Status Code | Expected Body      |
+|-----|-----------------------|-----------------|-----------------|----------------------|--------------------|
+| GET | joined_members        |                 |                 | 200                  | Map to RoomMembers |
+
+| PUT | EventType      | JSON Parameters                     | Expected Status Code | Expected Body |
+|-----|----------------|-------------------------------------|----------------------|---------------|
+| PUT | m.room.message | body : "Hi" <br> msgtype : "m.text" | 200                  | EventID       |
 
 
 
@@ -136,45 +139,14 @@ Develop (at least) 12 black-box functionality test cases to test your sut and wr
 4. Sending a message (missing authentication header)
 5. Sending a message (bad endpoint)
 6. Sending a message (wrong HTTP method)
-7. Sending a message (empty body)
-8. Sending a message (non-existant message type)
-9. Sending a message (wrong JSON field type)
+7. Sending a message (empty message)
+8. Sending a message (wrong message type)
+9. Sending a message (invalid sender username)
 10. Sending a message (invalid JSON)
-11. Sending a message (Room doesn't exists)
-12. Sending a message (Sender doesn't match token)
+11. Sending a message (non-existent msgtype)
+12. Sending a message (non-existent room/not in room)
 
-### Basic Tests
-| Type | Request               | JSON Parameters                       | Test Conditions  | Expected Status Code | Expected Body      |
-|------|-----------------------|---------------------------------------|------------------|----------------------|--------------------|
-| POST | create_room           | name : "My test room"                 |                  | 200                  | Room_ID            |
-| PUT  | m.room.message        | body : "Test" <br> msgtype : "m.text" |                  | 200                  | Event_ID           |
-
-### Bad Token Tests
-| Type | Request               | JSON Parameters                       | Test Conditions  | Expected Status Code | Expected Body      |
-|------|-----------------------|---------------------------------------|------------------|----------------------|--------------------|
-| PUT  | m.room.message        | body : "Test" <br> msgtype : "m.text" | Bad Auth Token   | 401                  | M_UNKNOWN_TOKEN    |
-| PUT  | m.room.message        | body : "Test" <br> msgtype : "m.text" | No Auth Token    | 401                  | M_MISSING_TOKEN    |
-
-### Bad HTTP Request Tests
-| Type | Request               | JSON Parameters                       | Test Conditions  | Expected Status Code | Expected Body      |
-|------|-----------------------|---------------------------------------|------------------|----------------------|--------------------|
-| PUT  | m.room.message        | body : "Test" <br> msgtype : "m.text" | Bad HTTP Endpoint | 404                 | M_UNRECOGNIZED     |
-| POST | m.room.message        | body : "Test" <br> msgtype : "m.text" | Wrong HTTP Method | 404                 | M_UNRECOGNIZED     |
-
-### JSON Body Tests
-| Type | Request               | JSON Parameters                       | Test Conditions  | Expected Status Code | Expected Body      |
-|------|-----------------------|---------------------------------------|------------------|----------------------|--------------------|
-| PUT  | m.room.message        | body :        <br> msgtype : "m.text" | Empty Body       | 200                  | Event_ID           |
-| PUT  | m.room.message        | body : "Test" <br> msgtype : m.does_not_exist   | Invalid msgtype  | 200                  | Event_ID           |
-| PUT  | m.room.message        | body : 12345  <br> msgtype : "m.text" | Bad JSON Field   | 400                  | M_BAD_JSON         |
-| PUT  | m.room.message        | body : "Test"                         | Invalid JSON     | 400                  | M_NOT_JSON         |
-
-### No Permission Tests
-| Type | Request               | JSON Parameters                       | Test Conditions    | Expected Status Code | Expected Body    |
-|------|-----------------------|---------------------------------------|--------------------|----------------------|------------------|
-| PUT  | m.room.message        | body : "Test" <br> msgtype : "m.text" | Room doesn't exist | 403                  | M_FORBIDDEN      |
-| PUT  | m.room.message        | body : "Test" <br> msgtype : "m.text" | Sender doesn't match token | 403                  | M_FORBIDDEN      |
-
+	
 # Test Execution
 ## Exercise 8: Testing the SUT
 Test your sut with the developed test cases, either manually, or using some existing or self-developed test execution tool. Describe for each test case the outcome of test execution.
