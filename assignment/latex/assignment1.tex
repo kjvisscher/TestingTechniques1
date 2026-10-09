@@ -1,0 +1,343 @@
+\documentclass[a4paper]{article}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue]{hyperref}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{soul}
+\usepackage{color}
+\usepackage{float}
+\usepackage[a4paper, margin=2cm]{geometry}
+\begin{document}
+	\section{Test Preparation} \label{test-preparation}
+	\subsection{Exercise 1: Description of SUT} \label{exercise-1-description-of-sut}
+	Our system-under-test is \href{https://github.com/element-hq/synapse}{Synapse}, a (home)server developed by \href{https://element.io/}{Element}. Synapse is an open source instance of \href{https://matrix.org/}{Matrix} written in Python.
+	
+	Using Synapse, the user can locally run a chat server and connect to it using a web client on \href{https://app.element.io/}{app.element.io}. These enable communication in accordance with the Matrix communication protocol.
+	
+	As a chat server, Synapse allows a user to communicate with it and other users by following the Matrix protocol.
+	\begin{itemize}
+		\item Functionality includes user registration and login, creating/joining/leaving chatrooms, sending and receiving messages and viewing message history.
+		\item The interface is the Matrix Client-Server HTTP API exposed by Synapse at \texttt{/\_matrix/client/*} on \texttt{localhost:8008}, accessed either through a GUI at \texttt{app.element.io} or directly via HTTP requests.
+		\item The inputs include user credentials (registration/login), room actions (create, join, invite), and messages, entered through the \texttt{app.element.io} UI or sent as JSON in HTTP requests.
+		\item The outputs consist of room - and message data rendered in the \texttt{app.element.io} UI, or viewed as raw JSON responses and HTTP status codes when interacting with the API directly.
+		\item Synapse runs in a Docker container built from source on the tester's machine. Element runs as a web client in a browser, connecting to the local Synapse instance over HTTP.
+		\item The server is started with \texttt{docker run} (built beforehand with \texttt{docker build}) and stopped with \texttt{docker stop}/\texttt{docker rm}; the client is simply opened/closed in a browser tab, with the homeserver URL matching that of port exposed by Docker (see \href{https://github.com/kjvisscher/TestingTechniques1/blob/main/README.md}{README.md}).
+	\end{itemize}
+	
+	For black-box testing the SUT's internal structure, we mainly focus on the components which have an observable form of output:
+	\begin{itemize}
+		\item HTTP Listener on port \texttt{8008} passing request based on content and path.
+		\item Client-server and API handler process requests in accordance with the Matrix communication protocol.
+	\end{itemize}
+	
+	\begin{figure}[h]
+		\begin{subfigure}{0.5\textwidth}
+			\center
+			\includegraphics[width=1.000\linewidth]
+			{../diagrams/external.drawio.png}
+			\label{external-drawio}
+			\caption{External Perspective}
+		\end{subfigure}
+		\begin{subfigure}{0.5\textwidth}
+			\center
+			\includegraphics[width=1\linewidth]
+			{../diagrams/internal.drawio.png}
+			\label{internal-drawio}
+			\caption{Internal Perspective}
+		\end{subfigure}
+	\end{figure}
+	
+	The latest version of the Synapse repository (\href{https://github.com/element-hq/synapse/releases/tag/v1.161.0}{1.161.0}) is ran using a docker container on the \href{https://hub.docker.com/r/matrixdotorg/synapse}{latest image version}. The repository and image are both run locally on either Linux or Windows operating systems. A basic setup procedure is required before running Synapse for the first time, as detailed in \texttt{TestingTechniques1/README.md}.
+	
+	References to relevant documentation:
+	\begin{itemize}
+		\item Element home page: \href{https://element.io/}{https://element.io/}
+		\item Matrix home page: \href{https://matrix.org/}{https://matrix.org/}
+		\item Matrix documentation: \href{https://matrix.org/docs/}{https://matrix.org/docs/}
+		\item Latest Matrix API: \href{https://spec.matrix.org/latest/}{https://spec.matrix.org/latest/}
+		\item Used Synapse image: \href{https://hub.docker.com/r/matrixdotorg/synapse/}{https://hub.docker.com/r/matrixdotorg/synapse/}
+		\item Public Synapse repository: \href{https://github.com/element-hq/synapse/}{https://github.com/element-hq/synapse/}
+		\item Synapse documentation: \href{https://docs.element.io/latest/}{https://docs.element.io/latest/}
+	\end{itemize}
+	\subsection{Exercise 2: What part of Synapse to test} \label{exercise-2-what-part-of-synapse-to-test}
+	We're going to test sending a message into a chatroom. By recreating chatrooms, we can create identical test conditions without needing to reset the container between runs. We intend to test the part dealing with chatting in a room primairly from the perspective of the user interaction that happens on the server. This means we need to test the components dealing with client-server API and room events. We intend to test sending messages by varying the input parameters:
+	\begin{enumerate}
+		\item Url with method
+		\item Headers (authentication)
+		\item The message body:
+		\begin{enumerate}    
+			\item Message content (\texttt{body})    
+			\item Message type  (\texttt{msgtype})    
+			\item Sender (\texttt{sender})
+		\end{enumerate}
+	\end{enumerate}
+	
+	The interface utilized during testing is the client-server API. Relevant documentation can be found in the \href{https://spec.matrix.org/v1.19/client-server-api/}{Matrix specification}. Refer to the following chapters:
+	
+	\begin{table}[h]
+		\center
+		\small
+		\begin{tabular}{|c|c|}
+			\hline
+			\textbf{Feature} & \textbf{Relevant Chapter} \\
+			\hline
+			Errors & \href{https://spec.matrix.org/v1.19/client-server-api/\#standard-error-response}{Chapter 1.1} \\
+			\hline
+			Logging in & \href{https://spec.matrix.org/v1.19/client-server-api/\#login}{Chapter 4.3} \\
+			\hline
+			Sending room events & \href{https://spec.matrix.org/v1.19/client-server-api/\#sending-events-to-a-room}{Chapter 7.7} \\
+			\hline
+			Creating a room & \href{https://spec.matrix.org/v1.19/client-server-api/\#creation}{Chapter 8.2} \\
+			\hline
+			Sending a message & \href{https://spec.matrix.org/v1.19/client-server-api/\#instant-messaging}{Chapter 10.2} \\
+			\hline
+		\end{tabular}
+	\end{table}
+	\subsection{Exercise 3: Test architecture for the testing} \label{exercise-3-test-architecture-for-the-testing}
+	Illustrated below is a hybrid high level component view and class diagram of our testing application in relation to the SUT. We have decided to picture Synapse as a black box, as all test cases are communicated over the same protocol and are handled in the same interface.
+	
+	\begin{figure}[h]
+		\center
+		\includegraphics[width=0.643\linewidth]
+		{../diagrams/component\_diagram.drawio.png}
+		\label{componentunderscorediagram-drawio}
+		\caption{Component View / Class Diagram}
+	\end{figure}
+	
+	The test will be run by an automatic testing application, this application will have multiple test suits which will all test a specific group of tests. Each test suite can contain multiple test cases. Each test case will consist of a unit test like assertion. Each test case will contain a HTTP-request which will be sent to the SUT, after which the response will be compared to the "expected behavior" response and making the test either pass or fail.
+	
+	The output of the SUT will be in compliance with the matrix communication protocol over HTTP-requests. The output will consist of text-based messages or files. The primary focus of the tests will be text-based messages because the comparison is simpler to assert. These responses are analyzed by the testing application.
+	
+	We make the following assumptions about Synapse:
+	\begin{enumerate}
+		\item By recreating rooms for each test, the behavior of messages is consistent throughout.
+		\item The behavior of Synapse is identical whether it is run locally or when running on a public server. That is, the test results achieved from running Synapse as a standalone Docker image are assumed to match those achieved from testing a "real" installation connected to multiple other servers over the internet.
+		\item Rate limits are assumed not to hinder running any automated tests.
+		\item Actual outputs of Synapse match those described in the \href{https://matrix.org/docs/}{Matrix documentation}.
+	\end{enumerate}
+	
+	The primary testing tool used for this project is a unit testing framework for C called \textit{Check} by Arien Malec (see \href{https://github.com/libcheck/check}{repository}).
+	\subsection{Exercise 4: What typical test cases look like} \label{exercise-4-what-typical-test-cases-look-like}
+	The initial state for most of our tests is to have a chat room with one user, with possible additional constraints depending on the test. Test input and output are plain text JSON objects transmitted over HTTP. Test input requires some sort of event (such as sending a message, replying to a message, etc.) as input alongside additional required parameters as specified by the Matrix API. Test output will include a HTTP status code, alongside a body which includes plain text information or possible errors. We can observe whether a test has succeeded by comparing the received response with an expected response and asserting that:
+	\begin{enumerate}
+		\item The returned HTTP status code matches what is expected
+		\item The body of the returned response is not empty
+		\item (For success) The body of the returned response contains an event ID/room ID
+		\item (For failure) The body of the returned response contains a specified error code
+	\end{enumerate}
+	
+	Our test cases are based on so called \textit{room events}. Creating a room is done using a POST request. A room event consists out of either a GET request for requesting information from the server, or a PUT request for sending events to the server. All of the tested requests require the user to be authenticated by including their token in an \textit{Authorization} header in the request, which won't explicitly be included for each test case. Furthermore, since each room event requires a \texttt{roomID} of the current room (which is randomly generated for each test), the test cases will not explicitly mention this value. However remember this will always be an implicit URL parameter in the HTTP request. If the \textit{Test Conditions} column for a given test is empty, 'normal' (otherwise succeeding) conditions are assumed. Below is an example of how two distinct types of requests will be noted:
+	
+	\begin{table}[h]
+		\center
+		\small
+		\begin{tabular}{|c|c|c|c|c|c|}
+			\hline
+			\textbf{Type} & \textbf{Request} & \textbf{\shortstack{JSON\\Parameters}} & \textbf{\shortstack{Test\\Conditions}} & \textbf{\shortstack{Expected\\Status\\Code}} & \textbf{\shortstack{Expected\\Body/\\Error}} \\
+			\hline
+			POST & createRoom & "name": "Test room" & - & 200 & Room\_ID \\
+			\hline
+			PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "Test" \\msgtype : "m.text"} & User is not in room & 403 & M\_FORBIDDEN \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\subsection{Exercise 5: Description implemented test architecture} \label{exercise-5-description-implemented-test-architecture}
+	The tests trigger the SUT through the Matrix Client-Server HTTP API at \texttt{http://localhost:8008/\_matrix/client/v3/*}. Each test case builds an HTTP request (method, path, headers, JSON body) and sends it. Requests that need authentication carry an \texttt{Authorization: Bearer <access\_token>} header. Examples of the endpoints used:
+	\begin{itemize}
+		\item \texttt{POST /\_matrix/client/v3/createRoom}
+		\begin{itemize}    
+			\item (create a fresh room per test)
+		\end{itemize}
+		\item \texttt{PUT /\_matrix/client/v3/rooms/\{roomId\}/state/m.room.message}
+		\begin{itemize}    
+			\item (send a message)
+		\end{itemize}
+	\end{itemize}
+	
+	The test code reads two things from every response: the HTTP status code and the JSON body. Assertions are made on fields such as \texttt{event\_id}, \texttt{errcode}, \texttt{error}, and the \texttt{content.body} and \texttt{m.relates\_to} of events returned by \texttt{/messages}.
+	
+	The test driver is a C program using the Check library. Tests are grouped in suites (based on functionalities like sending, deleting, replying). A small helper library wraps libcurl for sending the HTTP requests and cJSON for building and parsing the JSON bodies. The helpers hide details such as headers, authentication and transaction IDs, so the test cases themselves stay short.
+	
+	No stubs or mocks are used, as the tests run against the real Synapse server in Docker. The second user in a room is simulated by the driver with a second access token, so no real client is needed. The Element web client is not part of the automated tests.
+	
+	Additional tools or implementation details:
+	\begin{itemize}
+		\item Two test users are registered once before the tests with \texttt{register\_new\_matrix\_user} inside the container. Their access tokens are retrieved through \texttt{POST /\_matrix/client/v3/login}.
+		\item A Check fixture (\texttt{setup}) creates a fresh room before each test and invites and joins the second user. This gives every test the same initial state without resetting the container.
+		\item Matrix requires a unique transaction ID (\texttt{txnId}) for each \texttt{PUT} request, so the helpers generate a new counter-based ID per request.
+	\end{itemize}
+	
+	Docker publishes port \texttt{8008} to the host, so the Client-Server API is reachable by the test application. This is the only interface the tests use. The internal components of Synapse (HTTP listener, API handlers, database) are not accessed directly (in line with black-box testing) their behaviour is observed only through the API responses.
+	
+	\section{Test Development} \label{test-development}
+	\subsection{Exercise 6: Domains, inputs and interfaces} \label{exercise-6-domains-inputs-and-interfaces}
+	The interface used is the client server API through HTTP requests and our formatting functions. Constant and unrelated variables are omitted, since these typically apply to all room events which fall outside the scope of our testing. These domains assume that the HTTP requests are valid. Additionally, given that message sending is a room event, it is required to specify which room to send the event to. This is done by passing the \texttt{Room\_ID} in as a string.
+	
+	\begin{table}[h]
+		\center
+		\small
+		\begin{tabular}{|c|c|}
+			\hline
+			\textbf{Datatype} & \textbf{Contents} \\
+			\hline
+			e(200 : OK) & Event\_ID \\
+			\hline
+			r(200 : OK) & Room\_ID \\
+			\hline
+			400 : Bad Request & "M\_UNKNOWN", "{key} not in content" \\
+			\hline
+			400 : Bad Request & "M\_NOT\_JSON", "Content not JSON." \\
+			\hline
+			401 : Unauthorized & "M\_UNKNOWN\_TOKEN", "Invalid access token passed" \\
+			\hline
+			401 : Unauthorized & "M\_MISSING\_TOKEN", "Missing access token" \\
+			\hline
+			403 : Forbidden & "M\_FORBIDDEN", "User @{username} not in room {Room\_ID}" \\
+			\hline
+			404 : Not Found & "M\_UNRECOGNIZED", "Unrecognized request" \\
+			\hline
+			405 : Method Not Allowed & "M\_UNRECOGNIZED", "Unrecognized request" \\
+			\hline
+		\end{tabular}
+	\end{table}
+	\subsection{Exercise 7: Black-box functionality test cases} \label{exercise-7-black-box-functionality-test-cases}
+	Test case identification is based on the following convention: ID = suite\_number.test\_number. Where:
+	\begin{enumerate}
+		\item Suite 1: Room tests
+		\item Suite 2: Message tests
+	\end{enumerate}
+	\subsubsection{Basic Tests} \label{basic-tests}
+	
+	\begin{table}[h]
+		\center
+		\small
+		\begin{tabular}{|c|c|c|c|c|c|c|}
+			\hline
+			\textbf{ID} & \textbf{Type} & \textbf{Request} & \textbf{\shortstack{JSON\\Parameters}} & \textbf{\shortstack{Test\\Conditions}} & \textbf{\shortstack{Expected\\Status\\Code}} & \textbf{\shortstack{Expected\\Body}} \\
+			\hline
+			1.1 & POST & create\_room & name : "My test room" & - & 200 & Room\_ID \\
+			\hline
+			2.1 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "Test", \\ msgtype : "m.text"} & - & 200 & Event\_ID \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\subsubsection{Bad Token} \label{bad-token}
+	
+	\begin{table}[h]
+		\center
+		\small
+		\begin{tabular}{|c|c|c|c|c|c|c|}
+			\hline
+			\textbf{ID} & \textbf{Type} & \textbf{Request} & \textbf{\shortstack{JSON\\Parameters}} & \textbf{\shortstack{Test\\Conditions}} & \textbf{\shortstack{Expected\\Status\\Code}} & \textbf{\shortstack{Expected\\Body}} \\
+			\hline
+			2.2 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "Test", \\ msgtype : "m.text"} & Invalid Auth Token & 401 & M\_UNKNOWN\_TOKEN \\
+			\hline
+			2.3 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "Test", \\ msgtype : "m.text"} & No Auth Token & 401 & M\_MISSING\_TOKEN \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\subsubsection{Bad HTTP Request} \label{bad-http-request}
+	
+	\begin{table}[h]
+		\center
+		\small
+		\begin{tabular}{|c|c|c|c|c|c|c|}
+			\hline
+			\textbf{ID} & \textbf{Type} & \textbf{Request} & \textbf{\shortstack{JSON\\Parameters}} & \textbf{\shortstack{Test\\Conditions}} & \textbf{\shortstack{Expected\\Status\\Code}} & \textbf{\shortstack{Expected\\Body}} \\
+			\hline
+			2.4 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "Test", \\ msgtype : "m.text"} & Bad HTTP Endpoint & 404 & M\_UNRECOGNIZED \\
+			\hline
+			2.5 & POST & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "Test", \\ msgtype : "m.text"} & Wrong HTTP Method & 405 & M\_UNRECOGNIZED \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	
+	\subsubsection{JSON Body} \label{json-body}
+	
+	\begin{table}[h!]
+		\center
+		\small
+		\begin{tabular}{|c|c|c|c|c|c|c|}
+			\hline
+			\textbf{ID} & \textbf{Type} & \textbf{Request} & \textbf{\shortstack{JSON\\Parameters}} & \textbf{\shortstack{Test\\Conditions}} & \textbf{\shortstack{Expected\\Status\\Code}} & \textbf{\shortstack{Expected\\Body}} \\
+			\hline
+			2.6 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "", \\ msgtype : "m.text"} & Empty Body & 200 & Event\_ID \\
+			\hline
+			2.7 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "Test", \\ msgtype : "m.does\_not\_exist"} & Invalid msgtype & 200 & Event\_ID \\
+			\hline
+			2.8 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & body : "Test", & No msgtype & 400 & M\_NOT\_JSON \\
+			\hline
+			2.9 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : 12345,  \\ msgtype : "m.text"} & Body field as integer & 400 & M\_BAD\_JSON \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	
+	\subsubsection{No Permission} \label{no-permission}
+	
+	\begin{table}[H]
+		\center
+		\small
+		\begin{tabular}{|c|c|c|c|c|c|c|}
+			\hline
+			\textbf{ID} & \textbf{Type} & \textbf{Request} & \textbf{\shortstack{JSON\\Parameters}} & \textbf{\shortstack{Test\\Conditions}} & \textbf{\shortstack{Expected\\Status\\Code}} & \textbf{\shortstack{Expected\\Body}} \\
+			\hline
+			2.10 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "Test", \\ msgtype : "m.text"} & Room doesn't exist & 403 & M\_FORBIDDEN \\
+			\hline
+			2.11 & PUT & \shortstack{rooms/\{roomID\}/state/\\m.room.message/} & \shortstack{body : "Test", \\ msgtype : "m.text"} & Sender doesn't match token & 200 & Event\_ID \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	
+	\section{Test Execution} \label{test-execution}
+	\subsection{Exercise 8: Testing the SUT} \label{exercise-8-testing-the-sut}
+	As described \hyperref[exercise-4-what-typical-test-cases-look-like]{earlier}, we're using an automated test application to run these tests. If any of the assertions in this test fail, the testcase will too. The results are as follows:
+	\subsubsection{Room creation} \label{room-creation}
+	\begin{verbatim}
+		Running suite(s): Room Test Suite  
+		100%: Checks: 1, Failures: 0, Errors: 0  
+		P:Room Creation Test Case:test_room_create:0: Passed  
+	\end{verbatim}  
+	
+	\subsubsection{Send message} \label{send-message}
+	\begin{verbatim}
+		Running suite(s): Message Test Suite
+		100\%: Checks: 11, Failures: 0, Errors: 0
+		P:Message Send Test Case:test_message_send:0: Passed
+		P:Message Send Test Case:test_message_send_bad_token:0: Passed
+		P:Message Send Test Case:test_message_send_no_token:0: Passed
+		P:Message Send Test Case:test_message_send_bad_endpoint:0: Passed
+		P:Message Send Test Case:test_message_send_wrong_method:0: Passed
+		P:Message Send Test Case:test_message_send_empty_message:0: Passed
+		P:Message Send Test Case:test_message_send_wrong_type:0: Passed
+		P:Message Send Test Case:test_message_send_invalid_sender:0: Passed
+		P:Message Send Test Case:test_message_send_invalid_json:0: Passed
+		P:Message Send Test Case:test_message_send_unknown_msgtype:0: Passed
+		P:Message Send Test Case:test_message_send_unknown_room:0: Passed
+	\end{verbatim}
+	\subsection{Exercise 9: Analysis and explanation} \label{exercise-9-analysis-and-explanation}
+	The tests for all 12 formulated test cases passed, implying that the asserted values for each test match what we expect.
+	
+	\begin{table}[h]
+		\center
+		\small
+		\begin{tabular}{|c|c|c|}
+			\hline
+			\textbf{Test suite} & \textbf{Tests passed} & \textbf{Test errors} \\
+			\hline
+			Room creation & 1/1 & 0 \\
+			\hline
+			Send message & 11/11 & 0 \\
+			\hline
+			\textbf{Total} & 12/12 & 0 \\
+			\hline
+		\end{tabular}
+	\end{table}
+	\subsection{Exercise 10: Test tools} \label{exercise-10-test-tools}
+	The code for our test application can be found in our public \href{https://github.com/kjvisscher/TestingTechniques1}{GitHub repository}. For instructions on how to run it, see \href{https://github.com/kjvisscher/TestingTechniques1/blob/main/README.md}{README.md}. The first part of it contains a guide on how to get Synapse running in a Docker, written by us. The second part is an edited version of the \textit{README} from an open sourced example project for Check, see \href{https://github.com/vndmtrx/check-cmake-example}{cmake-example}. Note that Valgrind is not required to run the app. Before running, change the constants in \texttt{tests/test\_room.c} and \texttt{tests/test\_message.c} to match the admin's username and password for the local synapse installation (which in our testing were both "dirk"). Additional information about how the requests are performed (and how to mimick them) are provided in \texttt{assignment/requests.md}.
+\end{document}
