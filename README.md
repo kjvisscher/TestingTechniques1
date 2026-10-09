@@ -1,4 +1,4 @@
-# Running
+# Running Synapse
 If you've installed and configured your container already, you can simply start it after stopping it. First, get all containers (running and stopped):
 ```bash
 docker ps -a
@@ -13,7 +13,7 @@ Copy the container id (`1fa59f56d69d`) and run:
 docker start 1fa59f56d69d
 ```
 
-# Installing and running
+# Installing Synapse
 Our SUT is the [Synapse server](https://github.com/element-hq/synapse), which we will install and configure to run locally. The client can be accessed online via [app.element.io](https://app.element.io/) by entering localhost as the host environment.
 
 We will run the server using Docker, but the installation will differ slightly between Windows and Linux.
