@@ -1,3 +1,10 @@
+# Assignment 1
+---
+- Robin Brevink
+- Bas Schram
+- Dirk van Roosmalen
+- Kars Visscher
+---
 # Test Preparation
 ## Exercise 1: Description of SUT
 Our system-under-test is [Synapse](https://github.com/element-hq/synapse), a (home)server developed by [Element](https://element.io/). Synapse is an open source instance of [Matrix](https://matrix.org/) written in Python.
