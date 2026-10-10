@@ -1,3 +1,10 @@
+# Assignment 1
+---
+- Robin Brevink
+- Bas Schram
+- Dirk van Roosmalen
+- Kars Visscher
+---
 # Test Preparation
 ## Exercise 1: Description of SUT
 Our system-under-test is [Synapse](https://github.com/element-hq/synapse), a (home)server developed by [Element](https://element.io/). Synapse is an open source instance of [Matrix](https://matrix.org/) written in Python.
@@ -10,17 +17,16 @@ As a chat server, Synapse allows a user to communicate with it and other users b
 - The inputs include user credentials (registration/login), room actions (create, join, invite), and messages, entered through the `app.element.io` UI or sent as JSON in HTTP requests.
 - The outputs consist of room - and message data rendered in the `app.element.io` UI, or viewed as raw JSON responses and HTTP status codes when interacting with the API directly.
 - Synapse runs in a Docker container built from source on the tester's machine. Element runs as a web client in a browser, connecting to the local Synapse instance over HTTP.
-- The server is started with `docker run` (built beforehand with `docker build`) and stopped with `docker stop`/`docker rm`; the client is simply opened/closed in a browser tab, with the homeserver URL matching that of port exposed by Docker (see [[TestingTechniques1/README]]).
-
-![Diagram](external.drawio.png)
+- The server is started with `docker run` (built beforehand with `docker build`) and stopped with `docker stop`/`docker rm`; the client is simply opened/closed in a browser tab, with the homeserver URL matching that of port exposed by Docker (see [README.md](https://github.com/kjvisscher/TestingTechniques1/blob/main/README.md)).
 
 For black-box testing the SUT's internal structure, we mainly focus on the components which have an observable form of output:
 - HTTP Listener on port `8008` passing request based on content and path.
 - Client-server and API handler process requests in accordance with the Matrix communication protocol.
 
-![Diagram](diagrams/internal.drawio.png)
+![External Perspective|700](diagrams/external.drawio.png)
+![Internal Perspective](diagrams/internal.drawio.png)
 
-The latest version of the Synapse repository ([1.161.0](https://github.com/element-hq/synapse/releases/tag/v1.161.0)) is ran using a docker container on the [latest image version](https://hub.docker.com/r/matrixdotorg/synapse). The repository and image are both run locally on either Linux or Windows operating systems. A basic setup procedure is required before running Synapse for the first time, as detailed in [[TestingTechniques1/README]].
+The latest version of the Synapse repository ([1.161.0](https://github.com/element-hq/synapse/releases/tag/v1.161.0)) is ran using a docker container on the [latest image version](https://hub.docker.com/r/matrixdotorg/synapse). The repository and image are both run locally on either Linux or Windows operating systems. A basic setup procedure is required before running Synapse for the first time, as detailed in `TestingTechniques1/README.md`.
 
 References to relevant documentation:
 - Element home page: https://element.io/
@@ -51,7 +57,7 @@ The interface utilized during testing is the client-server API. Relevant documen
 ## Exercise 3: Test architecture for the testing
 Illustrated below is a hybrid high level component view and class diagram of our testing application in relation to the SUT. We have decided to picture Synapse as a black box, as all test cases are communicated over the same protocol and are handled in the same interface.
 
-![Diagram](diagrams/component_diagram.drawio.png)
+![Component View / Class Diagram|450](diagrams/component_diagram.drawio.png)
 
 The test will be run by an automatic testing application, this application will have multiple test suits which will all test a specific group of tests. Each test suite can contain multiple test cases. Each test case will consist of a unit test like assertion. Each test case will contain a HTTP-request which will be sent to the SUT, after which the response will be compared to the "expected behavior" response and making the test either pass or fail.
 
@@ -73,10 +79,10 @@ The initial state for most of our tests is to have a chat room with one user, wi
 
 Our test cases are based on so called *room events*. Creating a room is done using a POST request. A room event consists out of either a GET request for requesting information from the server, or a PUT request for sending events to the server. All of the tested requests require the user to be authenticated by including their token in an *Authorization* header in the request, which won't explicitly be included for each test case. Furthermore, since each room event requires a `roomID` of the current room (which is randomly generated for each test), the test cases will not explicitly mention this value. However remember this will always be an implicit URL parameter in the HTTP request. If the *Test Conditions* column for a given test is empty, 'normal' (otherwise succeeding) conditions are assumed. Below is an example of how two distinct types of requests will be noted:
 
-| Type | Request                              | JSON Parameters                      | Test Conditions     | Expected Status Code | Expected Body/Error |
-| ---- | ------------------------------------ | ------------------------------------ | ------------------- | -------------------- | ------------------- |
-| POST | createRoom                           | "name": "Test room"                  | -                   | 200                  | Room_ID             |
-| PUT  | rooms/{roomID}/state/m.room.message/ | body : "Test" <br>msgtype : "m.text" | User is not in room | 403                  | M_FORBIDDEN         |
+| Type | Request                                  | JSON<br>Parameters                   | Test<br>Conditions  | Expected<br>Status<br>Code | Expected<br>Body/<br>Error |
+| ---- | ---------------------------------------- | ------------------------------------ | ------------------- | -------------------------- | -------------------------- |
+| POST | createRoom                               | "name": "Test room"                  | -                   | 200                        | Room_ID                    |
+| PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "Test" <br>msgtype : "m.text" | User is not in room | 403                        | M_FORBIDDEN                |
 
 ## Exercise 5: Description implemented test architecture
 The tests trigger the SUT through the Matrix Client-Server HTTP API at `http://localhost:8008/_matrix/client/v3/*`. Each test case builds an HTTP request (method, path, headers, JSON body) and sends it. Requests that need authentication carry an `Authorization: Bearer <access_token>` header. Examples of the endpoints used:
@@ -119,66 +125,61 @@ Test case identification is based on the following convention: ID = suite_number
 2. Suite 2: Message tests
 ### Basic Tests
 
-| ID  | Type | Request                              | JSON Parameters                        | Test Conditions | Expected Status Code | Expected Body |
-| --- | ---- | ------------------------------------ | -------------------------------------- | --------------- | -------------------- | ------------- |
-| 1.1 | POST | create_room                          | name : "My test room"                  | -               | 200                  | Room_ID       |
-| 2.1 | PUT  | rooms/{roomID}/state/m.room.message/ | body : "Test", <br> msgtype : "m.text" | -               | 200                  | Event_ID      |
+| ID  | Type | Request                                  | JSON<br>Parameters                     | Test<br>Conditions | Expected<br>Status<br>Code | Expected<br>Body |
+| --- | ---- | ---------------------------------------- | -------------------------------------- | ------------------ | -------------------------- | ---------------- |
+| 1.1 | POST | create_room                              | name : "My test room"                  | -                  | 200                        | Room_ID          |
+| 2.1 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "Test", <br> msgtype : "m.text" | -                  | 200                        | Event_ID         |
 
 ### Bad Token
 
-| ID  | Type | Request                              | JSON Parameters                        | Test Conditions    | Expected Status Code | Expected Body   |
-| --- | ---- | ------------------------------------ | -------------------------------------- | ------------------ | -------------------- | --------------- |
-| 2.2 | PUT  | rooms/{roomID}/state/m.room.message/ | body : "Test", <br> msgtype : "m.text" | Invalid Auth Token | 401                  | M_UNKNOWN_TOKEN |
-| 2.3 | PUT  | rooms/{roomID}/state/m.room.message/ | body : "Test", <br> msgtype : "m.text" | No Auth Token      | 401                  | M_MISSING_TOKEN |
+| ID  | Type | Request                                  | JSON<br>Parameters                     | Test<br>Conditions | Expected<br>Status<br>Code | Expected<br>Body |
+| --- | ---- | ---------------------------------------- | -------------------------------------- | ------------------ | -------------------------- | ---------------- |
+| 2.2 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "Test", <br> msgtype : "m.text" | Invalid Auth Token | 401                        | M_UNKNOWN_TOKEN  |
+| 2.3 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "Test", <br> msgtype : "m.text" | No Auth Token      | 401                        | M_MISSING_TOKEN  |
 
 ### Bad HTTP Request
 
-| ID  | Type | Request                              | JSON Parameters                        | Test Conditions   | Expected Status Code | Expected Body  |
-| --- | ---- | ------------------------------------ | -------------------------------------- | ----------------- | -------------------- | -------------- |
-| 2.4 | PUT  | rooms/{roomID}/state/m.room.message/ | body : "Test", <br> msgtype : "m.text" | Bad HTTP Endpoint | 404                  | M_UNRECOGNIZED |
-| 2.5 | POST | rooms/{roomID}/state/m.room.message/ | body : "Test", <br> msgtype : "m.text" | Wrong HTTP Method | 405                  | M_UNRECOGNIZED |
+| ID  | Type | Request                                  | JSON<br>Parameters                     | Test<br>Conditions | Expected<br>Status<br>Code | Expected<br>Body |
+| --- | ---- | ---------------------------------------- | -------------------------------------- | ------------------ | -------------------------- | ---------------- |
+| 2.4 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "Test", <br> msgtype : "m.text" | Bad HTTP Endpoint  | 404                        | M_UNRECOGNIZED   |
+| 2.5 | POST | rooms/{roomID}/state/<br>m.room.message/ | body : "Test", <br> msgtype : "m.text" | Wrong HTTP Method  | 405                        | M_UNRECOGNIZED   |
 
 
 ### JSON Body
 
-| ID  | Type | Request                              | JSON Parameters                                  | Test Conditions       | Expected Status Code | Expected Body |
-| --- | ---- | ------------------------------------ | ------------------------------------------------ | --------------------- | -------------------- | ------------- |
-| 2.6 | PUT  | rooms/{roomID}/state/m.room.message/ | body : "", <br> msgtype : "m.text"               | Empty Body            | 200                  | Event_ID      |
-| 2.7 | PUT  | rooms/{roomID}/state/m.room.message/ | body : "Test", <br> msgtype : "m.does_not_exist" | Invalid msgtype       | 200                  | Event_ID      |
-| 2.8 | PUT  | rooms/{roomID}/state/m.room.message/ | body : "Test",                                   | No msgtype            | 400                  | M_NOT_JSON    |
-| 2.9 | PUT  | rooms/{roomID}/state/m.room.message/ | body : 12345,  <br> msgtype : "m.text"           | Body field as integer | 400                  | M_BAD_JSON    |
+| ID  | Type | Request                                  | JSON<br>Parameters                               | Test<br>Conditions    | Expected<br>Status<br>Code | Expected<br>Body |
+| --- | ---- | ---------------------------------------- | ------------------------------------------------ | --------------------- | -------------------------- | ---------------- |
+| 2.6 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "", <br> msgtype : "m.text"               | Empty Body            | 200                        | Event_ID         |
+| 2.7 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "Test", <br> msgtype : "m.does_not_exist" | Invalid msgtype       | 200                        | Event_ID         |
+| 2.8 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "Test",                                   | No msgtype            | 400                        | M_NOT_JSON       |
+| 2.9 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : 12345,  <br> msgtype : "m.text"           | Body field as integer | 400                        | M_BAD_JSON       |
 
 
 ### No Permission
 
-| ID   | Type | Request                              | JSON Parameters                        | Test Conditions            | Expected Status Code | Expected Body |
-| ---- | ---- | ------------------------------------ | -------------------------------------- | -------------------------- | -------------------- | ------------- |
-| 2.10 | PUT  | rooms/{roomID}/state/m.room.message/ | body : "Test", <br> msgtype : "m.text" | Room doesn't exist         | 403                  | M_FORBIDDEN   |
-| 2.11 | PUT  | rooms/{roomID}/state/m.room.message/ | body : "Test", <br> msgtype : "m.text" | Sender doesn't match token | 200                  | Event_ID      |
+| ID   | Type | Request                                  | JSON<br>Parameters                     | Test<br>Conditions         | Expected<br>Status<br>Code | Expected<br>Body |
+| ---- | ---- | ---------------------------------------- | -------------------------------------- | -------------------------- | -------------------------- | ---------------- |
+| 2.10 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "Test", <br> msgtype : "m.text" | Room doesn't exist         | 403                        | M_FORBIDDEN      |
+| 2.11 | PUT  | rooms/{roomID}/state/<br>m.room.message/ | body : "Test", <br> msgtype : "m.text" | Sender doesn't match token | 200                        | Event_ID         |
 # Test Execution
 ## Exercise 8: Testing the SUT
 As described [[#Exercise 4 What typical test cases look like|earlier]], we're using an automated test application to run these tests. If any of the assertions in this test fail, the testcase will too. The results are as follows:
-
-| Test suite    | Tests passed | Test errors |
-| ------------- | ------------ | ----------- |
-| Room creation | 1/1          | 0           |
-| Send message  | 11/11        | 0           |
 ### Room creation  
 ```c  
 Running suite(s): Room Test Suite  
 100%: Checks: 1, Failures: 0, Errors: 0  
-Room Creation Test Case:test_room_create:0: Passed  
+P:Room Creation Test Case:test_room_create:0: Passed  
 ```  
   
 ### Send message  
 ```c  
 Running suite(s): Message Test Suite
-90%: Checks: 11, Failures: 1, Errors: 0
+100%: Checks: 11, Failures: 0, Errors: 0
 P:Message Send Test Case:test_message_send:0: Passed
 P:Message Send Test Case:test_message_send_bad_token:0: Passed
 P:Message Send Test Case:test_message_send_no_token:0: Passed
 P:Message Send Test Case:test_message_send_bad_endpoint:0: Passed
-F:Message Send Test Case:test_message_send_wrong_method:0: Passed
+P:Message Send Test Case:test_message_send_wrong_method:0: Passed
 P:Message Send Test Case:test_message_send_empty_message:0: Passed
 P:Message Send Test Case:test_message_send_wrong_type:0: Passed
 P:Message Send Test Case:test_message_send_invalid_sender:0: Passed
@@ -187,8 +188,12 @@ P:Message Send Test Case:test_message_send_unknown_msgtype:0: Passed
 P:Message Send Test Case:test_message_send_unknown_room:0: Passed
 ```
 ## Exercise 9: Analysis and explanation
-All formulated test cases passed and are further explained in the chapters above. 
+The tests for all 12 formulated test cases passed, implying that the asserted values for each test match what we expect.
 
-Internally, we had some confusion about test case 2.5, as we expected it to return a different HTTP method. Currently, the [Matrix specification](https://spec.matrix.org/v1.19/push-gateway-api/#unsupported-endpoints) states that an unimplemented endpoint should return a 404 error when requested, and a 405 if the endpoint exists but not for the given HTTP method (which is the case for this test). We found an old GitHub issue [MSC3743](https://github.com/matrix-org/synapse/issues/14209) talking about updating this behavior and incorrectly concluded the expected behavior was to return a 404 instead.
+| Test suite    | Tests passed | Test errors |
+| ------------- | ------------ | ----------- |
+| Room creation | 1/1          | 0           |
+| Send message  | 11/11        | 0           |
+| **Total**     | 12/12        | 0           |
 ## Exercise 10: Test tools
-The code for our test application can be found in our public GitHub repository: https://github.com/kjvisscher/TestingTechniques1. For instructions on how to run it, see [README.md](https://github.com/kjvisscher/TestingTechniques1/blob/main/README.md). The first part of it contains a guide on how to get Synapse running in a Docker, written by us. The second part is an edited version of the *README* from an open sourced example project for Check, see https://github.com/vndmtrx/check-cmake-example. Note that Valgrind is not required to run the app. Before running, change the constants in `tests/test_room.c` and `tests/test_message.c` to match the admin's username and password for the local synapse installation (which in our testing were both "dirk"). Additional information about how the requests are performed (and how to mimick them) are provided in `assignment/requests.md`.
+The code for our test application can be found in our public [GitHub repository](https://github.com/kjvisscher/TestingTechniques1). For instructions on how to run it, see [README.md](https://github.com/kjvisscher/TestingTechniques1/blob/main/README.md). The first part of it contains a guide on how to get Synapse running in a Docker, written by us. The second part is an edited version of the *README* from an open sourced example project for Check, see [cmake-example](https://github.com/vndmtrx/check-cmake-example). Note that Valgrind is not required to run the app. Before running, change the constants in `tests/test_room.c` and `tests/test_message.c` to match the admin's username and password for the local synapse installation (which in our testing were both "dirk"). Additional information about how the requests are performed (and how to mimick them) are provided in `assignment/requests.md`.
